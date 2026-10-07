@@ -24,7 +24,8 @@
 	"types": "form-dropzone.d.ts",
 	"exports": {
 		".": {
-			"import": "./index.js"
+			"import": "./index.js",
+			"types": "./form-dropzone.d.ts"
 		},
 		"./form-dropzone.js": {
 			"types": "./form-dropzone.d.ts",
@@ -49,7 +50,6 @@
 	},
 	"packageManager": "npm@11.15.0",
 	"scripts": {
-		"setup": "node scripts/setup.js",
 		"test": "vitest",
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run",
