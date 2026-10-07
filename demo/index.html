@@ -3,78 +3,507 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>&lt;COMPONENT-NAME&gt; Web Component Demo</title>
+		<title>&lt;form-dropzone&gt; Web Component Demo</title>
 		<link rel="stylesheet" href="./styles.css" />
 		<style>
-			/* Demo-specific styles */
+			.selection-log {
+				background: Field;
+				border-inline-start: 4px solid AccentColor;
+				border-radius: 4px;
+				color: FieldText;
+				margin-block-start: 1rem;
+				padding: 0.75rem;
+			}
+
+			.custom-dropzone {
+				align-items: start;
+				background:
+					linear-gradient(Canvas, Canvas) padding-box,
+					linear-gradient(135deg, #6a5acd, #00a0a0) border-box;
+				border: 3px dashed transparent;
+				border-radius: 1rem;
+				min-block-size: 10rem;
+				text-align: start;
+			}
+
+			.custom-dropzone.form-dropzone--drag-active {
+				background:
+					linear-gradient(ButtonFace, ButtonFace) padding-box,
+					linear-gradient(135deg, #6a5acd, #00a0a0) border-box;
+			}
+
+			.custom-dropzone input[type='file'] {
+				background: transparent;
+				border: 0;
+				padding: 0;
+			}
+
+			.custom-dropzone input[type='file']::file-selector-button {
+				background: #4f3ca7;
+				border: 0;
+				border-radius: 0.5rem;
+				color: white;
+				cursor: pointer;
+				font: inherit;
+				margin-inline-end: 0.75rem;
+				padding: 0.65rem 1rem;
+			}
+
+			.custom-dropzone input[type='file']::file-selector-button:hover {
+				background: #392b7a;
+			}
+
+			.custom-dropzone .form-dropzone__previews {
+				grid-template-columns: repeat(
+					auto-fit,
+					minmax(min(6rem, 100%), 1fr)
+				);
+			}
+
+			.custom-dropzone .form-dropzone__preview-image {
+				border-radius: 50%;
+				max-block-size: 200px;
+				max-inline-size: 200px;
+			}
 		</style>
 	</head>
 	<body>
 		<header>
-			<h1>&lt;COMPONENT-NAME&gt;</h1>
+			<h1>&lt;form-dropzone&gt;</h1>
 			<p>
-				COMPONENT_DESCRIPTION See the
-				<a
-					href="https://github.com/aarongustafson/COMPONENT-NAME/blob/main/README.md"
-					>README</a
-				>
+				A progressively enhanced file-field wrapper that adds
+				drag-and-drop, accessible announcements, localization, and
+				optional image previews. See the
+				<a href="../">README</a>
 				for installation and API documentation.
+			</p>
+			<p>
+				<strong>Try it:</strong> Click anywhere in an enhanced zone or
+				drop files onto it. The original label and file input remain
+				available as the no-JavaScript and unsupported-browser
+				fallback.
 			</p>
 		</header>
 
 		<main>
-			<!-- Basic Example -->
 			<section>
-				<h2>Basic Example</h2>
-				<p>A simple demonstration of the component.</p>
-
-				<div class="demo-section">
-					<h3>Basic Usage</h3>
-					<p>Description of this example.</p>
-					<div class="code-demo-pair">
-						<pre><code>&lt;COMPONENT-NAME&gt;
-  &lt;p&gt;Content goes here&lt;/p&gt;
-&lt;/COMPONENT-NAME&gt;</code></pre>
-						<div class="demo">
-							<COMPONENT-NAME>
-								<p>Content goes here</p>
-							</COMPONENT-NAME>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- Example with Attributes -->
-			<section>
-				<h2>Example with Attributes</h2>
-				<p>Demonstrating component attributes.</p>
-
-				<div class="demo-section">
-					<h3>Using Attributes</h3>
-					<p>Description of this example with attributes.</p>
-					<div class="code-demo-pair">
-						<pre><code>&lt;COMPONENT-NAME example-attribute="value"&gt;
-  &lt;p&gt;Content with attributes&lt;/p&gt;
-&lt;/COMPONENT-NAME&gt;</code></pre>
-						<div class="demo">
-							<COMPONENT-NAME example-attribute="value">
-								<p>Content with attributes</p>
-							</COMPONENT-NAME>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- API Reference -->
-			<section class="api-reference">
-				<h2>API Reference</h2>
+				<h2>Basic single-file picker</h2>
 				<p>
-					For complete documentation of attributes, events, and
-					browser support, see the
-					<a
-						href="https://github.com/aarongustafson/COMPONENT-NAME/blob/main/README.md"
-						>README</a
-					>.
+					The only required content is one file input and its
+					associated label.
+				</p>
+
+				<div class="demo-section">
+					<h3>Any file type</h3>
+					<p>
+						Without <code>accept</code> or <code>multiple</code>,
+						the first dropped file is selected and any additional
+						files are rejected with an accessible announcement.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code><mark>&lt;form-dropzone&gt;</mark>
+  &lt;label for="basic-file"&gt;Choose a file&lt;/label&gt;
+  &lt;input
+    id="basic-file"
+    name="basic-file"
+    type="file" /&gt;
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						<div class="demo">
+							<form action="#">
+								<form-dropzone>
+									<label for="basic-file"
+										>Choose a file</label
+									>
+									<input
+										id="basic-file"
+										name="basic-file"
+										type="file"
+									/>
+								</form-dropzone>
+								<div
+									class="selection-log"
+									data-log-for="basic-file"
+								>
+									<strong>Selected:</strong> No files
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Multiple files and <code>accept</code></h2>
+				<p>
+					Dropped files are checked against extension, exact MIME,
+					and wildcard MIME accept tokens.
+				</p>
+
+				<div class="demo-section">
+					<h3>Mixed accept syntax</h3>
+					<p>
+						This input accepts PDF filenames, plain text MIME
+						types, and any image MIME type. A mixed drop keeps the
+						valid files and announces each rejection.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code><mark>&lt;form-dropzone&gt;</mark>
+  &lt;label for="mixed-files"&gt;Choose documents or images&lt;/label&gt;
+  &lt;input
+    id="mixed-files"
+    name="mixed-files"
+    type="file"
+    <mark>accept=".pdf,text/plain,image/*"
+    multiple</mark> /&gt;
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						<div class="demo">
+							<form action="#">
+								<form-dropzone>
+									<label for="mixed-files"
+										>Choose documents or images</label
+									>
+									<input
+										id="mixed-files"
+										name="mixed-files"
+										type="file"
+										accept=".pdf,text/plain,image/*"
+										multiple
+									/>
+								</form-dropzone>
+								<div
+									class="selection-log"
+									data-log-for="mixed-files"
+								>
+									<strong>Selected:</strong> No files
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Image previews</h2>
+				<p>
+					The boolean <code>preview-images</code> attribute renders
+					image selections from the picker or a drop in a responsive
+					Light DOM grid.
+				</p>
+
+				<div class="demo-section">
+					<h3>Multiple image preview grid</h3>
+					<p>
+						Non-image files can remain selected when allowed by the
+						input, but only image MIME types are previewed.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;form-dropzone <mark>preview-images</mark>&gt;
+  &lt;label for="preview-images"&gt;Choose images&lt;/label&gt;
+  &lt;input
+    id="preview-images"
+    name="preview-images"
+    type="file"
+    accept="image/*"
+    multiple /&gt;
+&lt;/form-dropzone&gt;</code></pre>
+						<div class="demo">
+							<form action="#">
+								<form-dropzone preview-images>
+									<label for="preview-images"
+										>Choose images</label
+									>
+									<input
+										id="preview-images"
+										name="preview-images"
+										type="file"
+										accept="image/*"
+										multiple
+									/>
+								</form-dropzone>
+								<div
+									class="selection-log"
+									data-log-for="preview-images"
+								>
+									<strong>Selected:</strong> No files
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Localization and custom announcements</h2>
+				<p>
+					Visible instructions and all drop-result messages can be
+					translated independently. Announcement templates support
+					<code>{count}</code> and <code>{files}</code>.
+				</p>
+
+				<div class="demo-section">
+					<h3>Custom English announcements</h3>
+					<p>
+						Drop multiple PDFs plus a non-PDF file to produce
+						received, file-type rejection, and single-file limit
+						messages in one announcement. The visible log mirrors
+						the component's visually hidden live region for this
+						demo.
+					</p>
+					<p>The default announcement templates are:</p>
+					<ul>
+						<li>
+							<code>received-message="Received: {files}."</code>
+						</li>
+						<li>
+							<code
+								>rejected-type-message="Rejected because the
+								file type is not accepted: {files}."</code
+							>
+						</li>
+						<li>
+							<code
+								>rejected-multiple-message="Rejected because
+								only one file is allowed: {files}."</code
+							>
+						</li>
+					</ul>
+					<div class="code-demo-pair">
+						<pre><code>&lt;form-dropzone
+  <mark>received-message="Ready to upload {count}: {files}."
+  rejected-type-message="Not accepted: {files}. Choose a PDF."
+  rejected-multiple-message="Only the first PDF was added. Extra: {files}."</mark>&gt;
+  &lt;label for="custom-announcements"&gt;Choose one PDF&lt;/label&gt;
+  &lt;input
+    id="custom-announcements"
+    name="custom-announcements"
+    type="file"
+    accept=".pdf" /&gt;
+&lt;/form-dropzone&gt;</code></pre>
+						<div class="demo">
+							<form action="#">
+								<form-dropzone
+									id="english-announcements-zone"
+									received-message="Ready to upload {count}: {files}."
+									rejected-type-message="Not accepted: {files}. Choose a PDF."
+									rejected-multiple-message="Only the first PDF was added. Extra: {files}."
+								>
+									<label for="custom-announcements"
+										>Choose one PDF</label
+									>
+									<input
+										id="custom-announcements"
+										name="custom-announcements"
+										type="file"
+										accept=".pdf"
+									/>
+								</form-dropzone>
+								<div
+									class="selection-log"
+									data-log-for="custom-announcements"
+								>
+									<strong>Selected:</strong> No files
+								</div>
+								<div
+									class="selection-log"
+									data-announcement-for="english-announcements-zone"
+								>
+									<strong>Latest announcement:</strong> None
+									yet
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="demo-section">
+					<h3>French text and messages</h3>
+					<p>
+						Drop more than one PDF to hear both the received and
+						single-file rejection messages.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;form-dropzone
+  <mark>drop-label="Déposez les fichiers ici"
+  separator-label="ou"
+  received-message="{count} fichier(s) reçu(s) : {files}."
+  rejected-type-message="Type refusé : {files}."
+  rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."</mark>&gt;
+  &lt;label for="french-pdf"&gt;Choisir un PDF&lt;/label&gt;
+  &lt;input
+    id="french-pdf"
+    name="french-pdf"
+    type="file"
+    accept=".pdf" /&gt;
+&lt;/form-dropzone&gt;</code></pre>
+						<div class="demo" lang="fr">
+							<form action="#">
+								<form-dropzone
+									drop-label="Déposez les fichiers ici"
+									separator-label="ou"
+									received-message="{count} fichier(s) reçu(s) : {files}."
+									rejected-type-message="Type refusé : {files}."
+									rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."
+								>
+									<label for="french-pdf"
+										>Choisir un PDF</label
+									>
+									<input
+										id="french-pdf"
+										name="french-pdf"
+										type="file"
+										accept=".pdf"
+									/>
+								</form-dropzone>
+								<div
+									class="selection-log"
+									data-log-for="french-pdf"
+								>
+									<strong>Sélection :</strong> Aucun fichier
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Wrapping label association</h2>
+				<p>
+					The native label may use <code>for</code>/<code>id</code>
+					or wrap the file input directly.
+				</p>
+
+				<div class="demo-section">
+					<h3>Input nested in its label</h3>
+					<p>
+						This pattern remains fully functional before custom
+						element registration and when drag-and-drop is
+						unavailable.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;form-dropzone&gt;
+  <mark>&lt;label&gt;</mark>
+    Choose a spreadsheet
+    &lt;input
+      name="spreadsheet"
+      type="file"
+      accept=".csv,.xlsx" /&gt;
+  <mark>&lt;/label&gt;</mark>
+&lt;/form-dropzone&gt;</code></pre>
+						<div class="demo">
+							<form action="#">
+								<form-dropzone>
+									<label>
+										Choose a spreadsheet
+										<input
+											name="spreadsheet"
+											type="file"
+											accept=".csv,.xlsx"
+										/>
+									</label>
+								</form-dropzone>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h2>Custom Light DOM styling</h2>
+				<p>
+					Default rules use low-specificity selectors, so normal
+					author CSS can override alignment, borders, drag state, and
+					preview elements.
+				</p>
+
+				<div class="demo-section">
+					<h3>Left-aligned circular previews</h3>
+					<p>
+						This example uses the enhancement state class and
+						generated Light DOM preview classes.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;style&gt;
+  .custom-dropzone {
+    align-items: start;
+    min-block-size: 10rem;
+    text-align: start;
+  }
+
+  .custom-dropzone input[type="file"] {
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+
+  .custom-dropzone input[type="file"]::file-selector-button {
+    background: #4f3ca7;
+    border: 0;
+    border-radius: 0.5rem;
+    color: white;
+    cursor: pointer;
+    font: inherit;
+    margin-inline-end: 0.75rem;
+    padding: 0.65rem 1rem;
+  }
+
+  .custom-dropzone input[type="file"]::file-selector-button:hover {
+    background: #392b7a;
+  }
+
+  .custom-dropzone .form-dropzone__preview-image {
+    border-radius: 50%;
+    max-block-size: 200px;
+    max-inline-size: 200px;
+  }
+&lt;/style&gt;
+
+&lt;form-dropzone
+  <mark>class="custom-dropzone"
+  preview-images</mark>&gt;
+  &lt;label for="styled-images"&gt;Choose profile images&lt;/label&gt;
+  &lt;input
+    id="styled-images"
+    name="styled-images"
+    type="file"
+    accept="image/*"
+    multiple /&gt;
+&lt;/form-dropzone&gt;</code></pre>
+						<div class="demo">
+							<form action="#">
+								<form-dropzone
+									class="custom-dropzone"
+									preview-images
+								>
+									<label for="styled-images"
+										>Choose profile images</label
+									>
+									<input
+										id="styled-images"
+										name="styled-images"
+										type="file"
+										accept="image/*"
+										multiple
+									/>
+								</form-dropzone>
+								<div
+									class="selection-log"
+									data-log-for="styled-images"
+								>
+									<strong>Selected:</strong> No files
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="api-reference">
+				<h2>API reference</h2>
+				<p>
+					For complete attribute, property, styling-hook,
+					progressive-enhancement, and browser-support documentation,
+					see the <a href="../">README</a>.
 				</p>
 			</section>
 		</main>
@@ -83,13 +512,79 @@
 			<p>
 				Made with ❤️ by
 				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
-				View the source on
-				<a href="https://github.com/aarongustafson/COMPONENT-NAME"
-					>GitHub</a
+				Inspired by
+				<a href="https://nikitahl.com/custom-styled-input-type-file"
+					>“Custom styled input type file” by Nikita Hlopov</a
 				>.
 			</p>
 		</footer>
 
+		<script>
+			document.querySelectorAll('form').forEach((form) => {
+				form.addEventListener('submit', (event) => {
+					event.preventDefault();
+				});
+			});
+
+			document
+				.querySelectorAll('input[type="file"]')
+				.forEach((input) => {
+					input.addEventListener('change', () => {
+						if (!input.id) {
+							return;
+						}
+
+						const log = document.querySelector(
+							`[data-log-for="${input.id}"]`,
+						);
+						if (!log) {
+							return;
+						}
+
+						const names = Array.from(
+							input.files,
+							(file) => file.name,
+						);
+						log.replaceChildren();
+						const label = document.createElement('strong');
+						label.textContent = 'Selected:';
+						log.append(
+							label,
+							` ${names.join(', ') || 'No files'}`,
+						);
+					});
+				});
+
+			document
+				.querySelectorAll('[data-announcement-for]')
+				.forEach((log) => {
+					const dropzone = document.getElementById(
+						log.dataset.announcementFor,
+					);
+					if (!dropzone) {
+						return;
+					}
+
+					const observer = new MutationObserver(() => {
+						const message = dropzone.querySelector(
+							'.form-dropzone__status',
+						)?.textContent;
+						if (!message) {
+							return;
+						}
+
+						log.replaceChildren();
+						const label = document.createElement('strong');
+						label.textContent = 'Latest announcement:';
+						log.append(label, ` ${message}`);
+					});
+					observer.observe(dropzone, {
+						childList: true,
+						characterData: true,
+						subtree: true,
+					});
+				});
+		</script>
 		<script src="../define.js" type="module"></script>
 	</body>
 </html>

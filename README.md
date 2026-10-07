@@ -1,226 +1,160 @@
-# Web Component Starter Template
+# `form-dropzone` Web Component
 
-A comprehensive, production-ready starter template for creating Web Components. This template is based on the architecture and best practices from my web components work, incorporating [Google's Custom Element Best Practices](https://web.dev/articles/custom-elements-best-practices).
+[![npm version](https://img.shields.io/npm/v/@aarongustafson/form-dropzone.svg)](https://www.npmjs.com/package/@aarongustafson/form-dropzone) [![Build Status](https://img.shields.io/github/actions/workflow/status/aarongustafson/form-dropzone/ci.yml?branch=main)](https://github.com/aarongustafson/form-dropzone/actions)
 
-## ✨ Features
+A progressively enhanced file-field wrapper that adds a responsive drag-and-drop surface, accessible status announcements, and optional image previews.
 
-- **Modern Tooling**: Vitest, ESLint, Prettier, Happy DOM
-- **Best Practices**: Shadow DOM, Custom Elements v1, proper encapsulation, following [Google's recommendations](https://web.dev/articles/custom-elements-best-practices)
-- **Multiple Import Options**: Auto-define, manual definition, or both
-- **Testing**: Comprehensive test setup with coverage reporting
-- **CI/CD**: GitHub Actions workflows included
-- **Developer Experience**: Demo page, interactive setup, extensive documentation
-- **Publishing Ready**: npm package configuration and automated publishing workflow
+## Demo
 
-## 🚀 Quick Start
+- [Live demo](https://aarongustafson.github.io/form-dropzone/demo/) ([source](./demo/index.html))
+- [esm.sh demo](https://aarongustafson.github.io/form-dropzone/demo/esm.html) ([source](./demo/esm.html))
+- [unpkg demo](https://aarongustafson.github.io/form-dropzone/demo/unpkg.html) ([source](./demo/unpkg.html))
 
-### Use This Template
-
-1. Click "Use this template" on GitHub, or:
+## Installation
 
 ```bash
-git clone https://github.com/aarongustafson/web-component-starter.git my-component
-cd my-component
+npm install @aarongustafson/form-dropzone
 ```
 
-2. Run the interactive setup:
+Import the class and register it:
+
+```javascript
+import { FormDropzoneElement } from '@aarongustafson/form-dropzone';
+
+customElements.define('form-dropzone', FormDropzoneElement);
+```
+
+Or use the guarded definition helper:
+
+```javascript
+import {
+  defineFormDropzone,
+} from '@aarongustafson/form-dropzone/define.js';
+
+defineFormDropzone();
+```
+
+Importing `define.js` also attempts to register `<form-dropzone>` automatically in browser environments.
+
+## Usage
+
+Supply one `input[type="file"]` and its associated `label`. Both remain in Light DOM and provide a native fallback before the component upgrades or when drag-and-drop is unavailable.
+
+```html
+<form-dropzone>
+  <label for="attachments">Choose files</label>
+  <input
+    id="attachments"
+    name="attachments"
+    type="file"
+    accept=".pdf,image/*"
+    multiple
+  >
+</form-dropzone>
+```
+
+Clicking the non-interactive drop-zone surface opens the native picker. Dropped files are filtered using the input's comma-separated `accept` value, including file extensions, exact MIME types, and wildcard MIME groups. If `multiple` is absent, the first acceptable file is selected and later acceptable files are rejected. Mixed drops keep acceptable files and announce the rejected files.
+
+A successful drop replaces the input's existing `FileList`, then dispatches bubbling `input` and `change` events.
+
+## Attributes
+
+| Attribute | Type | Default | Description |
+|---|---|---|---|
+| `drop-label` | string | `Drop file(s) here` | Prompt inserted before the author label. |
+| `separator-label` | string | `or` | Text inserted between the prompt and label. |
+| `received-message` | string | `Received: {files}.` | Accepted-file announcement template. |
+| `rejected-type-message` | string | `Rejected because the file type is not accepted: {files}.` | `accept` rejection template. |
+| `rejected-multiple-message` | string | `Rejected because only one file is allowed: {files}.` | Single-file limit rejection template. |
+| `preview-images` | boolean | absent | Adds image previews for picker and drop selections. |
+
+Message templates support `{files}` (a comma-separated filename list) and `{count}`.
+
+```html
+<form-dropzone
+  drop-label="Déposez les fichiers ici"
+  separator-label="ou"
+  received-message="{count} fichier(s) reçu(s) : {files}."
+  rejected-type-message="Type de fichier refusé : {files}."
+  rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."
+>
+  <label for="document">Choisir un fichier</label>
+  <input id="document" name="document" type="file" accept=".pdf">
+</form-dropzone>
+```
+
+Each attribute has a camel-cased JavaScript property: `dropLabel`, `separatorLabel`, `receivedMessage`, `rejectedTypeMessage`, `rejectedMultipleMessage`, and `previewImages`.
+
+## Image previews
+
+Add `preview-images` to preview selected image MIME types. Accepted non-image files remain selected but are not rendered.
+
+```html
+<form-dropzone preview-images>
+  <label for="photos">Choose photos</label>
+  <input id="photos" name="photos" type="file" accept="image/*" multiple>
+</form-dropzone>
+```
+
+Object URLs are revoked whenever previews are replaced, disabled, or disconnected. Previews are visual only and do not change form submission.
+
+## Styling
+
+The component injects low-specificity default styles once. Ordinary author selectors can override the centered layout:
+
+```css
+form-dropzone {
+  align-items: start;
+  min-block-size: 10rem;
+  text-align: start;
+}
+
+form-dropzone .form-dropzone__previews {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+```
+
+Stable Light DOM classes:
+
+- `.form-dropzone--enhanced`
+- `.form-dropzone--drag-active`
+- `.form-dropzone__prompt`
+- `.form-dropzone__separator`
+- `.form-dropzone__status`
+- `.form-dropzone__previews`
+- `.form-dropzone__preview`
+- `.form-dropzone__preview-image`
+- `.form-dropzone__preview-name`
+
+Preview items also expose the filename through `data-file-name`.
+
+## Accessibility and progressive enhancement
+
+- The author-provided label and file input remain the keyboard interaction.
+- The wrapper does not add a duplicate button role or tab stop.
+- Drop outcomes are announced through a generated polite, atomic status region.
+- Accepted, invalid-type, and excess-file outcomes can be localized independently.
+- Without the required drag-and-drop and assignable `FileList` APIs, the component does not mutate its children or add behavior.
+- Invalid markup is left unchanged and reported with a console warning.
+
+## Browser support
+
+The component requires Custom Elements, ES modules, HTML drag-and-drop file APIs, `DataTransfer`, and an assignable file input `files` property. Unsupported environments retain the original label and input.
+
+## Inspiration
+
+The drop-zone layout and interaction were inspired by Nikita Hlopov's article, [“Custom styled input type file”](https://nikitahl.com/custom-styled-input-type-file). Many thanks to Nikita for sharing their approach!
+
+## Development
 
 ```bash
 npm install
-npm run setup
+npm run test:run
+npm run test:coverage
+npm run lint
+npm run format
 ```
 
-The setup wizard will:
-- Ask for your component name (e.g., `my-awesome-component`)
-- Ask for a description
-- Rename all files automatically
-- Replace all placeholders in code and configuration
-- **Generate your component's README from template**
-- **Clean up template setup files** (SETUP.md, README.tpl, scripts/)
-- Install dependencies
-- Initialize git repository
+## License
 
-### Manual Setup
-
-If you prefer manual setup, see [SETUP.md](SETUP.md) for detailed instructions.
-
-## 📁 What's Included
-
-```
-web-component-starter/
-├── COMPONENT-NAME.js                    # Component implementation
-├── index.js                             # Main entry (class + auto-define)
-├── define.js                            # Auto-define only
-├── custom-elements.json                 # Custom Elements Manifest
-├── package.json                         # Package config with scripts
-├── LICENSE                              # MIT License
-├── README.md                            # This file (replaced after setup)
-├── README.tpl                           # Template for your component's README
-├── WEB-COMPONENTS-BEST-PRACTICES.md    # Best practices documentation
-├── .gitignore                           # Git ignore
-├── .npmignore                           # npm ignore
-├── .prettierrc                          # Prettier config
-├── .editorconfig                        # Editor config
-├── eslint.config.js                     # ESLint config
-├── vitest.config.js                     # Vitest config
-├── .github/
-│   ├── workflows/
-│   │   ├── ci.yml                      # Continuous integration
-│   │   └── publish.yml                 # Auto-publish to npm
-│   └── ISSUE_TEMPLATE/                 # Bug & feature templates
-├── scripts/
-│   └── setup.js                        # Interactive setup wizard (removed after setup)
-├── test/
-│   ├── setup.js                        # Test configuration
-│   └── COMPONENT-NAME.test.js          # Test suite
-├── demo/
-│   └── index.html                      # Live demo page
-├── SETUP.md                            # Manual setup guide (removed after setup)
-└── CONTRIBUTING.md                     # Contribution guidelines
-```
-
-## 🛠️ Development
-
-### Available Scripts
-
-```bash
-npm run setup          # Interactive setup wizard
-npm test               # Run tests in watch mode
-npm run test:run       # Run tests once
-npm run test:ui        # Open Vitest UI
-npm run test:coverage  # Generate coverage report
-npm run lint           # Lint with ESLint + Prettier
-npm run format         # Auto-fix linting issues
-```
-
-### Component Architecture
-
-This template provides flexible import options:
-
-**Option 1: Manual registration**
-```javascript
-import { ComponentNameElement } from '@yourscope/component-name';
-
-customElements.define('my-custom-name', ComponentNameElement);
-```
-
-**Option 2: Guarded auto-define (browser environments only)**
-```javascript
-import '@yourscope/component-name/define.js';
-// Registers the element when customElements is available
-```
-
-Prefer to control when registration happens? Call the helper directly:
-
-```javascript
-import { defineComponentName } from '@yourscope/component-name/define.js';
-
-defineComponentName();
-```
-
-## 🧪 Testing
-
-Includes:
-- **Vitest**: Fast, modern test runner
-- **Happy DOM**: Lightweight browser environment
-- **Testing Library**: DOM testing utilities
-- **Coverage**: V8 coverage reporting
-- **UI**: Interactive test debugging
-
-Example:
-```javascript
-import { describe, it, expect } from 'vitest';
-
-describe('MyComponent', () => {
-  it('should render', () => {
-    const el = document.createElement('my-component');
-    expect(el).toBeInstanceOf(HTMLElement);
-  });
-});
-```
-
-## 📦 Publishing
-
-### Setup Automated Publishing with OIDC (Recommended)
-
-This template is configured to publish to npm using OpenID Connect (OIDC), which is more secure than using long-lived NPM tokens.
-
-**Initial Setup:**
-
-1. Publish your package to npm manually the first time:
-   ```bash
-   npm run test:run  # Ensure tests pass
-   npm run lint      # Ensure code is clean
-   npm publish       # First publish must be manual
-   ```
-
-2. Configure OIDC on npm:
-   - Visit your package's access page: `https://www.npmjs.com/package/@yourscope/your-component-name/access`
-   - Under "Publishing Access", click "Configure OIDC"
-   - Add GitHub Actions as a trusted publisher with these settings:
-     - **Provider**: GitHub
-     - **Organization/Username**: Your GitHub username or organization
-     - **Repository**: Your repository name
-     - **Workflow**: `.github/workflows/publish.yml`
-     - **Environment**: Leave blank (unless you use GitHub environments)
-
-3. Create a GitHub release to trigger automated publishing:
-   - Use `npm version` to update version and create a tag: `npm version patch` (or `minor`/`major`)
-   - Push with tags: `git push --follow-tags`
-   - Or create a release through GitHub's UI
-
-The GitHub Actions workflow (`.github/workflows/publish.yml`) will automatically publish to npm when you create a new version tag.
-
-### Manual Publishing
-
-If you prefer to publish manually without automation:
-
-```bash
-npm run test:run  # Ensure tests pass
-npm run lint      # Ensure code is clean
-npm publish       # Publish to npm
-```
-
-## 🌐 Browser Support
-
-Works in all modern browsers supporting:
-- Custom Elements v1
-- Shadow DOM v1
-- ES Modules
-
-For legacy browsers, use polyfills.
-
-## 📚 Documentation
-
-- [WEB-COMPONENTS-BEST-PRACTICES.md](WEB-COMPONENTS-BEST-PRACTICES.md) - Explanation of best practices used in this template
-- [SETUP.md](SETUP.md) - Detailed setup instructions (removed after setup)
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
-- [LICENSE](LICENSE) - MIT License
-
-## 🎯 Use Cases
-
-Perfect for:
-- Reusable UI components
-- Design system elements
-- Form controls and widgets
-- Interactive content blocks
-- Accessibility-enhanced components
-
-## 🙏 Credits
-
-Based on best practices from:
-- [Google's Custom Element Best Practices](https://web.dev/articles/custom-elements-best-practices)
-- [form-obfuscator](https://github.com/aarongustafson/form-obfuscator) by Aaron Gustafson
-- [Open Web Components](https://open-wc.org/)
-
-## 📄 License
-
-MIT - See [LICENSE](LICENSE)
-
-## 🤝 Contributing
-
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
-
-**Ready to build your web component?** Run `npm run setup` to get started! 🚀
+MIT © [Aaron Gustafson](https://www.aaron-gustafson.com/)
