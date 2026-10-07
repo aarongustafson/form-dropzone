@@ -24,8 +24,8 @@
 	"types": "form-dropzone.d.ts",
 	"exports": {
 		".": {
-			"import": "./index.js",
-			"types": "./form-dropzone.d.ts"
+			"types": "./form-dropzone.d.ts",
+			"import": "./index.js"
 		},
 		"./form-dropzone.js": {
 			"types": "./form-dropzone.d.ts",
