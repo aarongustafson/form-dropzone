@@ -1,12 +1,12 @@
 import { beforeAll } from 'vitest';
-import { ComponentNameElement } from '../COMPONENT-NAME.js';
+import { FormDropzoneElement } from '../form-dropzone.js';
 
 // Define the custom element before tests run
 beforeAll(() => {
-	if (!customElements.get('COMPONENT-NAME')) {
-		customElements.define('COMPONENT-NAME', ComponentNameElement);
+	if (!customElements.get('form-dropzone')) {
+		customElements.define('form-dropzone', FormDropzoneElement);
 	}
 
 	// Make the class available globally for testing static methods
-	globalThis.ComponentNameElement = ComponentNameElement;
+	globalThis.FormDropzoneElement = FormDropzoneElement;
 });

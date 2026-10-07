@@ -1,32 +1,104 @@
 {
 	"schemaVersion": "1.0.0",
-	"readme": "",
+	"readme": "README.md",
 	"modules": [
 		{
 			"kind": "javascript-module",
-			"path": "COMPONENT-NAME.js",
+			"path": "form-dropzone.js",
 			"declarations": [
 				{
 					"kind": "class",
-					"description": "COMPONENT_DESCRIPTION",
-					"name": "ComponentNameElement",
-					"members": [],
+					"description": "Progressively enhances an associated label and file input with a Light DOM drag-and-drop surface, accessible announcements, and optional image previews.",
+					"name": "FormDropzoneElement",
+					"members": [
+						{
+							"kind": "field",
+							"name": "dropLabel",
+							"type": { "text": "string" },
+							"attribute": "drop-label"
+						},
+						{
+							"kind": "field",
+							"name": "separatorLabel",
+							"type": { "text": "string" },
+							"attribute": "separator-label"
+						},
+						{
+							"kind": "field",
+							"name": "receivedMessage",
+							"type": { "text": "string" },
+							"attribute": "received-message"
+						},
+						{
+							"kind": "field",
+							"name": "rejectedTypeMessage",
+							"type": { "text": "string" },
+							"attribute": "rejected-type-message"
+						},
+						{
+							"kind": "field",
+							"name": "rejectedMultipleMessage",
+							"type": { "text": "string" },
+							"attribute": "rejected-multiple-message"
+						},
+						{
+							"kind": "field",
+							"name": "previewImages",
+							"type": { "text": "boolean" },
+							"attribute": "preview-images"
+						}
+					],
 					"events": [],
-					"attributes": [],
-					"superclass": {
-						"name": "HTMLElement"
-					},
-					"tagName": "COMPONENT-NAME",
+					"attributes": [
+						{
+							"name": "drop-label",
+							"type": { "text": "string" },
+							"default": "\"Drop file(s) here\"",
+							"description": "Drop instruction inserted before the author-provided label."
+						},
+						{
+							"name": "separator-label",
+							"type": { "text": "string" },
+							"default": "\"or\"",
+							"description": "Text inserted between the drop instruction and label."
+						},
+						{
+							"name": "received-message",
+							"type": { "text": "string" },
+							"default": "\"Received: {files}.\"",
+							"description": "Live-region template for accepted files. Supports {files} and {count}."
+						},
+						{
+							"name": "rejected-type-message",
+							"type": { "text": "string" },
+							"default": "\"Rejected because the file type is not accepted: {files}.\"",
+							"description": "Live-region template for files rejected by accept. Supports {files} and {count}."
+						},
+						{
+							"name": "rejected-multiple-message",
+							"type": { "text": "string" },
+							"default": "\"Rejected because only one file is allowed: {files}.\"",
+							"description": "Live-region template for excess files on a single-file input. Supports {files} and {count}."
+						},
+						{
+							"name": "preview-images",
+							"type": { "text": "boolean" },
+							"default": "false",
+							"description": "Renders accepted image selections in a Light DOM preview grid."
+						}
+					],
+					"superclass": { "name": "HTMLElement" },
+					"tagName": "form-dropzone",
 					"customElement": true
 				}
 			],
 			"exports": [
 				{
 					"kind": "js",
-					"name": "ComponentNameElement",
+					"name": "FormDropzoneElement",
 					"declaration": {
-						"name": "ComponentNameElement",
-						"module": "COMPONENT-NAME.js"
+						"name": "FormDropzoneElement",
+						"module": "form-dropzone.js"
 					}
 				}
 			]

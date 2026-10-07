@@ -1,6 +1,6 @@
-import { ComponentNameElement } from './COMPONENT-NAME.js';
+import { FormDropzoneElement } from './form-dropzone.js';
 
-export function defineComponentName(tagName = 'COMPONENT-NAME') {
+export function defineFormDropzone(tagName = 'form-dropzone') {
 	const hasWindow = typeof window !== 'undefined';
 	const registry = hasWindow ? window.customElements : undefined;
 
@@ -9,10 +9,10 @@ export function defineComponentName(tagName = 'COMPONENT-NAME') {
 	}
 
 	if (!registry.get(tagName)) {
-		registry.define(tagName, ComponentNameElement);
+		registry.define(tagName, FormDropzoneElement);
 	}
 
 	return true;
 }
 
-defineComponentName();
+defineFormDropzone();

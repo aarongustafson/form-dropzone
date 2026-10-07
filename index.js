@@ -1,1 +1,1 @@
-export { ComponentNameElement } from './COMPONENT-NAME.js';
+export { FormDropzoneElement } from './form-dropzone.js';
