@@ -93,7 +93,6 @@ export class FormDropzoneElement extends HTMLElement {
 			}
 
 			:where(form-dropzone.form-dropzone--drag-active) {
-				background: color-mix(in srgb, currentColor 8%, transparent);
 				border-style: solid;
 			}
 

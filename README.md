@@ -27,9 +27,7 @@ customElements.define('form-dropzone', FormDropzoneElement);
 Or use the guarded definition helper:
 
 ```javascript
-import {
-  defineFormDropzone,
-} from '@aarongustafson/form-dropzone/define.js';
+import { defineFormDropzone } from '@aarongustafson/form-dropzone/define.js';
 
 defineFormDropzone();
 ```
@@ -49,7 +47,7 @@ Supply one `input[type="file"]` and its associated `label`. Both remain in Light
     type="file"
     accept=".pdf,image/*"
     multiple
-  >
+  />
 </form-dropzone>
 ```
 
@@ -59,14 +57,14 @@ A successful drop replaces the input's existing `FileList`, then dispatches bubb
 
 ## Attributes
 
-| Attribute | Type | Default | Description |
-|---|---|---|---|
-| `drop-label` | string | `Drop file(s) here` | Prompt inserted before the author label. |
-| `separator-label` | string | `or` | Text inserted between the prompt and label. |
-| `received-message` | string | `Received: {files}.` | Accepted-file announcement template. |
-| `rejected-type-message` | string | `Rejected because the file type is not accepted: {files}.` | `accept` rejection template. |
-| `rejected-multiple-message` | string | `Rejected because only one file is allowed: {files}.` | Single-file limit rejection template. |
-| `preview-images` | boolean | absent | Adds image previews for picker and drop selections. |
+| Attribute                   | Type    | Default                                                    | Description                                         |
+| --------------------------- | ------- | ---------------------------------------------------------- | --------------------------------------------------- |
+| `drop-label`                | string  | `Drop file(s) here`                                        | Prompt inserted before the author label.            |
+| `separator-label`           | string  | `or`                                                       | Text inserted between the prompt and label.         |
+| `received-message`          | string  | `Received: {files}.`                                       | Accepted-file announcement template.                |
+| `rejected-type-message`     | string  | `Rejected because the file type is not accepted: {files}.` | `accept` rejection template.                        |
+| `rejected-multiple-message` | string  | `Rejected because only one file is allowed: {files}.`      | Single-file limit rejection template.               |
+| `preview-images`            | boolean | absent                                                     | Adds image previews for picker and drop selections. |
 
 Message templates support `{files}` (a comma-separated filename list) and `{count}`.
 
@@ -79,7 +77,7 @@ Message templates support `{files}` (a comma-separated filename list) and `{coun
   rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."
 >
   <label for="document">Choisir un fichier</label>
-  <input id="document" name="document" type="file" accept=".pdf">
+  <input id="document" name="document" type="file" accept=".pdf" />
 </form-dropzone>
 ```
 
@@ -92,7 +90,7 @@ Add `preview-images` to preview selected image MIME types. Accepted non-image fi
 ```html
 <form-dropzone preview-images>
   <label for="photos">Choose photos</label>
-  <input id="photos" name="photos" type="file" accept="image/*" multiple>
+  <input id="photos" name="photos" type="file" accept="image/*" multiple />
 </form-dropzone>
 ```
 
@@ -100,10 +98,22 @@ Object URLs are revoked whenever previews are replaced, disabled, or disconnecte
 
 ## Styling
 
-The component injects low-specificity default styles once. Ordinary author selectors can override the centered layout:
+The component injects low-specificity default styles once. It leaves foreground
+and background colors to the author and draws a two-pixel dashed boundary in
+`currentColor`. During a file drag, that boundary becomes solid without changing
+the colors. Earlier versions added an 8% foreground tint during dragging;
+removing it preserves the contrast of the authored surface.
+
+The original file input retains its browser-provided focus indicator. The
+wrapper adds neither a focus ring nor a tab stop.
+
+Ordinary author selectors can override the centered layout. When setting a
+background, supply its foreground too:
 
 ```css
 form-dropzone {
+  background: Canvas;
+  color: CanvasText;
   align-items: start;
   min-block-size: 10rem;
   text-align: start;
@@ -128,6 +138,12 @@ Stable Light DOM classes:
 
 Preview items also expose the filename through `data-file-name`.
 
+The same classes work in forced colors, with automatic color adjustment
+enabled. If you add a custom drag background, test its text and border contrast
+as well as the resting state. Keep a non-color drag cue and a visible focus
+indicator on the native picker. Check preview filenames on the surrounding
+surface; images do not provide a dependable text background.
+
 ## Accessibility and progressive enhancement
 
 - The author-provided label and file input remain the keyboard interaction.
@@ -151,9 +167,15 @@ The drop-zone layout and interaction were inspired by Nikita Hlopov's article, [
 npm install
 npm run test:run
 npm run test:coverage
+npm run test:browser
 npm run lint
 npm run format
 ```
+
+Browser tests use Playwright’s Chromium, Firefox, and WebKit engines. Install
+them with `npx playwright install` before the first run. Palette-substitution
+tests cover the study’s 19 distinct color sets; they do not simulate actual
+operating-system repainting or replace keyboard and assistive-technology checks.
 
 ## License
 

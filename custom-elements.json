@@ -8,7 +8,7 @@
 			"declarations": [
 				{
 					"kind": "class",
-					"description": "Progressively enhances an associated label and file input with a Light DOM drag-and-drop surface, accessible announcements, and optional image previews.",
+					"description": "Progressively enhances an associated label and file input with a Light DOM drag-and-drop surface, localized status announcements, and optional image previews. Preserves authored foreground/background colors and native input focus; a currentColor dashed boundary becomes solid during a file drag.",
 					"name": "FormDropzoneElement",
 					"members": [
 						{
