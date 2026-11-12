@@ -7,17 +7,63 @@
 		<link rel="stylesheet" href="./styles.css" />
 	</head>
 	<body>
-		<h1>esm.sh demo</h1>
-		<form-dropzone preview-images>
-			<label for="esm-images">Choose images</label>
-			<input
-				id="esm-images"
-				name="images"
-				type="file"
-				accept="image/*"
-				multiple
-			/>
-		</form-dropzone>
+		<header>
+			<h1>&lt;form-dropzone&gt; via esm.sh</h1>
+			<p>
+				Import the class and register it explicitly. See the
+				<a href="../">README</a> for the full API.
+			</p>
+		</header>
+		<main>
+			<section class="demo-section">
+				<h2>Image selection and previews</h2>
+				<p>
+					The class-only import does not register the element. After
+					registration, drag images onto the zone or use the native
+					picker. The dashed border becomes solid during a file drag.
+					Without JavaScript, the required APIs, or a successful CDN
+					load, the labeled native picker remains usable, without drag
+					enhancement or previews.
+				</p>
+				<div class="code-demo-pair">
+					<pre><code>&lt;form-dropzone preview-images&gt;
+  &lt;label for="esm-images"&gt;Choose images&lt;/label&gt;
+  &lt;input
+    id="esm-images"
+    name="images"
+    type="file"
+    accept="image/*"
+    multiple /&gt;
+&lt;/form-dropzone&gt;
+
+&lt;script type="module"&gt;
+  import { FormDropzoneElement } from 'https://esm.sh/@aarongustafson/form-dropzone@1.0.1/form-dropzone.js?bundle&amp;target=es2022';
+
+  if (!customElements.get('form-dropzone')) {
+    customElements.define('form-dropzone', FormDropzoneElement);
+  }
+&lt;/script&gt;</code></pre>
+					<div class="demo">
+						<form-dropzone preview-images>
+							<label for="esm-images">Choose images</label>
+							<input
+								id="esm-images"
+								name="images"
+								type="file"
+								accept="image/*"
+								multiple
+							/>
+						</form-dropzone>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer>
+			<p>
+				Made with ❤️ by
+				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
+			</p>
+		</footer>
 
 		<script type="module">
 			import { FormDropzoneElement } from 'https://esm.sh/@aarongustafson/form-dropzone@1.0.1/form-dropzone.js?bundle&target=es2022';

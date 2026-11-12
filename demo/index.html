@@ -8,7 +8,7 @@
 		<style>
 			.selection-log {
 				background: Field;
-				border-inline-start: 4px solid AccentColor;
+				border-inline-start: 4px solid FieldText;
 				border-radius: 4px;
 				color: FieldText;
 				margin-block-start: 1rem;
@@ -16,31 +16,34 @@
 			}
 
 			.custom-dropzone {
+				display: block;
 				align-items: start;
-				background:
-					linear-gradient(Canvas, Canvas) padding-box,
-					linear-gradient(135deg, #6a5acd, #00a0a0) border-box;
-				border: 3px dashed transparent;
+				background: Canvas;
+				color: CanvasText;
+				border: 3px dashed currentColor;
 				border-radius: 1rem;
 				min-block-size: 10rem;
 				text-align: start;
 			}
 
 			.custom-dropzone.form-dropzone--drag-active {
-				background:
-					linear-gradient(ButtonFace, ButtonFace) padding-box,
-					linear-gradient(135deg, #6a5acd, #00a0a0) border-box;
+				border-style: solid;
+			}
+
+			.custom-dropzone.form-dropzone--enhanced {
+				display: flex;
 			}
 
 			.custom-dropzone input[type='file'] {
 				background: transparent;
+				color: inherit;
 				border: 0;
 				padding: 0;
 			}
 
 			.custom-dropzone input[type='file']::file-selector-button {
 				background: #4f3ca7;
-				border: 0;
+				border: 1px solid currentColor;
 				border-radius: 0.5rem;
 				color: white;
 				cursor: pointer;
@@ -77,15 +80,17 @@
 				<a href="../">README</a>
 				for installation and API documentation.
 			</p>
-			<p>
-				<strong>Try it:</strong> Click anywhere in an enhanced zone or
-				drop files onto it. The original label and file input remain
-				available as the no-JavaScript and unsupported-browser
-				fallback.
-			</p>
 		</header>
 
 		<main>
+			<p>
+				<strong>Try it:</strong> Use the native file picker or drop
+				files onto an enhanced zone. During a file drag, the dashed
+				boundary becomes solid without changing the zone’s colors. If
+				JavaScript or the required APIs are unavailable, the original
+				label and picker remain. Rejected files are named in the status
+				announcement; choose another file to recover.
+			</p>
 			<section>
 				<h2>Basic single-file picker</h2>
 				<p>
@@ -135,16 +140,16 @@
 			<section>
 				<h2>Multiple files and <code>accept</code></h2>
 				<p>
-					Dropped files are checked against extension, exact MIME,
-					and wildcard MIME accept tokens.
+					Dropped files are checked against extension, exact MIME, and
+					wildcard MIME accept tokens.
 				</p>
 
 				<div class="demo-section">
 					<h3>Mixed accept syntax</h3>
 					<p>
-						This input accepts PDF filenames, plain text MIME
-						types, and any image MIME type. A mixed drop keeps the
-						valid files and announces each rejection.
+						This input accepts PDF filenames, plain text MIME types,
+						and any image MIME type. A mixed drop keeps the valid
+						files and announces each rejection.
 					</p>
 					<div class="code-demo-pair">
 						<pre><code><mark>&lt;form-dropzone&gt;</mark>
@@ -425,20 +430,34 @@
 					<div class="code-demo-pair">
 						<pre><code>&lt;style&gt;
   .custom-dropzone {
+    display: block;
     align-items: start;
+    background: Canvas;
+    color: CanvasText;
+    border: 3px dashed currentColor;
+    border-radius: 1rem;
     min-block-size: 10rem;
     text-align: start;
   }
 
+  .custom-dropzone.form-dropzone--drag-active {
+    border-style: solid;
+  }
+
+  .custom-dropzone.form-dropzone--enhanced {
+    display: flex;
+  }
+
   .custom-dropzone input[type="file"] {
     background: transparent;
+    color: inherit;
     border: 0;
     padding: 0;
   }
 
   .custom-dropzone input[type="file"]::file-selector-button {
     background: #4f3ca7;
-    border: 0;
+    border: 1px solid currentColor;
     border-radius: 0.5rem;
     color: white;
     cursor: pointer;
@@ -449,6 +468,10 @@
 
   .custom-dropzone input[type="file"]::file-selector-button:hover {
     background: #392b7a;
+  }
+
+  .custom-dropzone .form-dropzone__previews {
+    grid-template-columns: repeat(auto-fit, minmax(min(6rem, 100%), 1fr));
   }
 
   .custom-dropzone .form-dropzone__preview-image {
@@ -526,34 +549,26 @@
 				});
 			});
 
-			document
-				.querySelectorAll('input[type="file"]')
-				.forEach((input) => {
-					input.addEventListener('change', () => {
-						if (!input.id) {
-							return;
-						}
+			document.querySelectorAll('input[type="file"]').forEach((input) => {
+				input.addEventListener('change', () => {
+					if (!input.id) {
+						return;
+					}
 
-						const log = document.querySelector(
-							`[data-log-for="${input.id}"]`,
-						);
-						if (!log) {
-							return;
-						}
+					const log = document.querySelector(
+						`[data-log-for="${input.id}"]`,
+					);
+					if (!log) {
+						return;
+					}
 
-						const names = Array.from(
-							input.files,
-							(file) => file.name,
-						);
-						log.replaceChildren();
-						const label = document.createElement('strong');
-						label.textContent = 'Selected:';
-						log.append(
-							label,
-							` ${names.join(', ') || 'No files'}`,
-						);
-					});
+					const names = Array.from(input.files, (file) => file.name);
+					log.replaceChildren();
+					const label = document.createElement('strong');
+					label.textContent = 'Selected:';
+					log.append(label, ` ${names.join(', ') || 'No files'}`);
 				});
+			});
 
 			document
 				.querySelectorAll('[data-announcement-for]')

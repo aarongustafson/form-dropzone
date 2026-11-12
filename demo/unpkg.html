@@ -7,16 +7,59 @@
 		<link rel="stylesheet" href="./styles.css" />
 	</head>
 	<body>
-		<h1>unpkg demo</h1>
-		<form-dropzone>
-			<label for="unpkg-document">Choose a PDF</label>
-			<input
-				id="unpkg-document"
-				name="document"
-				type="file"
-				accept=".pdf"
-			/>
-		</form-dropzone>
+		<header>
+			<h1>&lt;form-dropzone&gt; via unpkg</h1>
+			<p>
+				Import the guarded definition helper. See the
+				<a href="../">README</a> for the full API.
+			</p>
+		</header>
+		<main>
+			<section class="demo-section">
+				<h2>One PDF attachment</h2>
+				<p>
+					Importing <code>define.js</code> automatically attempts
+					registration; calling its helper again is safe. Drop a PDF
+					or use the native picker. Other dropped types and excess
+					files are named in the status announcement; choose another
+					file to recover. If JavaScript, the required APIs, or the
+					CDN load is unavailable, the labeled native picker remains.
+				</p>
+				<div class="code-demo-pair">
+					<pre><code>&lt;form-dropzone&gt;
+  &lt;label for="unpkg-document"&gt;Choose a PDF&lt;/label&gt;
+  &lt;input
+    id="unpkg-document"
+    name="document"
+    type="file"
+    accept=".pdf" /&gt;
+&lt;/form-dropzone&gt;
+
+&lt;script type="module"&gt;
+  import { defineFormDropzone } from 'https://unpkg.com/@aarongustafson/form-dropzone@latest/define.js?module';
+
+  defineFormDropzone();
+&lt;/script&gt;</code></pre>
+					<div class="demo">
+						<form-dropzone>
+							<label for="unpkg-document">Choose a PDF</label>
+							<input
+								id="unpkg-document"
+								name="document"
+								type="file"
+								accept=".pdf"
+							/>
+						</form-dropzone>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer>
+			<p>
+				Made with ❤️ by
+				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
+			</p>
+		</footer>
 
 		<script type="module">
 			import { defineFormDropzone } from 'https://unpkg.com/@aarongustafson/form-dropzone@latest/define.js?module';

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Dropzone color and interaction fixture</title>
+		<style>
+			body {
+				background: Canvas;
+				color: CanvasText;
+				padding: 1rem;
+			}
+		</style>
+	</head>
+	<body>
+		<form>
+			<form-dropzone
+				received-message="Ready: {files}."
+				rejected-type-message="Not accepted: {files}."
+				rejected-multiple-message="Too many: {files}."
+			>
+				<label for="attachments">Choose a PDF</label>
+				<input
+					id="attachments"
+					name="attachments"
+					type="file"
+					accept=".pdf"
+				/>
+			</form-dropzone>
+			<button type="submit">Continue</button>
+		</form>
+		<script type="module" src="../../define.js"></script>
+	</body>
+</html>
