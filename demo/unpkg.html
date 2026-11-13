@@ -26,19 +26,19 @@
 					CDN load is unavailable, the labeled native picker remains.
 				</p>
 				<div class="code-demo-pair">
-					<pre><code>&lt;form-dropzone&gt;
+					<pre><code><mark>&lt;form-dropzone&gt;</mark>
   &lt;label for="unpkg-document"&gt;Choose a PDF&lt;/label&gt;
   &lt;input
     id="unpkg-document"
     name="document"
     type="file"
     accept=".pdf" /&gt;
-&lt;/form-dropzone&gt;
+<mark>&lt;/form-dropzone&gt;</mark>
 
 &lt;script type="module"&gt;
-  import { defineFormDropzone } from 'https://unpkg.com/@aarongustafson/form-dropzone@latest/define.js?module';
+  <mark>import { defineFormDropzone } from 'https://unpkg.com/@aarongustafson/form-dropzone@latest/define.js?module';</mark>
 
-  defineFormDropzone();
+  <mark>defineFormDropzone();</mark>
 &lt;/script&gt;</code></pre>
 					<div class="demo">
 						<form-dropzone>
