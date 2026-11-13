@@ -1,6 +1,10 @@
 # `form-dropzone` Web Component
 
-[![npm version](https://img.shields.io/npm/v/@aarongustafson/form-dropzone.svg)](https://www.npmjs.com/package/@aarongustafson/form-dropzone) [![Build Status](https://img.shields.io/github/actions/workflow/status/aarongustafson/form-dropzone/ci.yml?branch=main)](https://github.com/aarongustafson/form-dropzone/actions)
+[![npm version](https://img.shields.io/npm/v/@aarongustafson/form-dropzone.svg)](https://www.npmjs.com/package/@aarongustafson/form-dropzone)
+[![CI status](https://img.shields.io/github/actions/workflow/status/aarongustafson/form-dropzone/ci.yml?branch=main&label=CI)](https://github.com/aarongustafson/form-dropzone/actions/workflows/ci.yml)
+[![Minified + gzipped size](https://img.shields.io/bundlejs/size/@aarongustafson/form-dropzone?format=minzip&label=min%2Bgzip)](https://bundlejs.com/?q=@aarongustafson/form-dropzone)
+[![License](https://img.shields.io/npm/l/@aarongustafson/form-dropzone)](https://github.com/aarongustafson/form-dropzone/blob/main/LICENSE)
+[![Type definitions](https://img.shields.io/npm/types/@aarongustafson/form-dropzone)](https://github.com/aarongustafson/form-dropzone/blob/main/form-dropzone.d.ts)
 
 A progressively enhanced file-field wrapper that adds a responsive drag-and-drop surface, accessible status announcements, and optional image previews.
 
