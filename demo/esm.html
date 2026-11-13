@@ -26,7 +26,7 @@
 					enhancement or previews.
 				</p>
 				<div class="code-demo-pair">
-					<pre><code>&lt;form-dropzone preview-images&gt;
+					<pre><code><mark>&lt;form-dropzone preview-images&gt;</mark>
   &lt;label for="esm-images"&gt;Choose images&lt;/label&gt;
   &lt;input
     id="esm-images"
@@ -34,14 +34,14 @@
     type="file"
     accept="image/*"
     multiple /&gt;
-&lt;/form-dropzone&gt;
+<mark>&lt;/form-dropzone&gt;</mark>
 
 &lt;script type="module"&gt;
-  import { FormDropzoneElement } from 'https://esm.sh/@aarongustafson/form-dropzone@1.0.2/form-dropzone.js?bundle&amp;target=es2022';
+  <mark>import { FormDropzoneElement } from 'https://esm.sh/@aarongustafson/form-dropzone@1.0.2/form-dropzone.js?bundle&amp;target=es2022';</mark>
 
-  if (!customElements.get('form-dropzone')) {
+  <mark>if (!customElements.get('form-dropzone')) {
     customElements.define('form-dropzone', FormDropzoneElement);
-  }
+  }</mark>
 &lt;/script&gt;</code></pre>
 					<div class="demo">
 						<form-dropzone preview-images>

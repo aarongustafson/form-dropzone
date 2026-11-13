@@ -202,7 +202,7 @@
 						input, but only image MIME types are previewed.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form-dropzone <mark>preview-images</mark>&gt;
+						<pre><code><mark>&lt;form-dropzone preview-images&gt;</mark>
   &lt;label for="preview-images"&gt;Choose images&lt;/label&gt;
   &lt;input
     id="preview-images"
@@ -210,7 +210,7 @@
     type="file"
     accept="image/*"
     multiple /&gt;
-&lt;/form-dropzone&gt;</code></pre>
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone preview-images>
@@ -273,17 +273,17 @@
 						</li>
 					</ul>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form-dropzone
-  <mark>received-message="Ready to upload {count}: {files}."
+						<pre><code><mark>&lt;form-dropzone
+  received-message="Ready to upload {count}: {files}."
   rejected-type-message="Not accepted: {files}. Choose a PDF."
-  rejected-multiple-message="Only the first PDF was added. Extra: {files}."</mark>&gt;
+  rejected-multiple-message="Only the first PDF was added. Extra: {files}."&gt;</mark>
   &lt;label for="custom-announcements"&gt;Choose one PDF&lt;/label&gt;
   &lt;input
     id="custom-announcements"
     name="custom-announcements"
     type="file"
     accept=".pdf" /&gt;
-&lt;/form-dropzone&gt;</code></pre>
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone
@@ -327,19 +327,19 @@
 						single-file rejection messages.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form-dropzone
-  <mark>drop-label="Déposez les fichiers ici"
+						<pre><code><mark>&lt;form-dropzone
+  drop-label="Déposez les fichiers ici"
   separator-label="ou"
   received-message="{count} fichier(s) reçu(s) : {files}."
   rejected-type-message="Type refusé : {files}."
-  rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."</mark>&gt;
+  rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."&gt;</mark>
   &lt;label for="french-pdf"&gt;Choisir un PDF&lt;/label&gt;
   &lt;input
     id="french-pdf"
     name="french-pdf"
     type="file"
     accept=".pdf" /&gt;
-&lt;/form-dropzone&gt;</code></pre>
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						<div class="demo" lang="fr">
 							<form action="#">
 								<form-dropzone
@@ -386,7 +386,7 @@
 						unavailable.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form-dropzone&gt;
+						<pre><code><mark>&lt;form-dropzone&gt;</mark>
   <mark>&lt;label&gt;</mark>
     Choose a spreadsheet
     &lt;input
@@ -394,7 +394,7 @@
       type="file"
       accept=".csv,.xlsx" /&gt;
   <mark>&lt;/label&gt;</mark>
-&lt;/form-dropzone&gt;</code></pre>
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone>
@@ -481,9 +481,9 @@
   }
 &lt;/style&gt;
 
-&lt;form-dropzone
-  <mark>class="custom-dropzone"
-  preview-images</mark>&gt;
+<mark>&lt;form-dropzone
+  class="custom-dropzone"
+  preview-images&gt;</mark>
   &lt;label for="styled-images"&gt;Choose profile images&lt;/label&gt;
   &lt;input
     id="styled-images"
@@ -491,7 +491,7 @@
     type="file"
     accept="image/*"
     multiple /&gt;
-&lt;/form-dropzone&gt;</code></pre>
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone
