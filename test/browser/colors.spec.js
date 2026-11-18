@@ -1,6 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+	await page.route(
+		'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
+		(route) => route.abort(),
+	);
+});
+
 const source = await readFile(
 	new URL('../../form-dropzone.js', import.meta.url),
 	'utf8',
@@ -324,7 +331,7 @@ for (const scheme of ['light', 'dark']) {
 		await page.emulateMedia({ colorScheme: scheme });
 		await page.goto('/demo/index.html');
 		await expect(page.locator('.form-dropzone--enhanced')).toHaveCount(7);
-		await page.locator('header a').focus();
+		await page.locator('.code-demo-pair pre').first().focus();
 		// macOS WebKit needs Option+Tab when full keyboard navigation is off.
 		await page.keyboard.press(
 			browserName === 'webkit' && process.platform === 'darwin'
@@ -334,7 +341,8 @@ for (const scheme of ['light', 'dark']) {
 		const input = page.locator('#basic-file');
 		await expect(input).toBeFocused();
 		await expect(input).toHaveAccessibleName('Choose a file');
-		await expect(input).toHaveCSS('outline-style', 'auto');
+		await expect(input).toHaveCSS('outline-style', 'solid');
+		await expect(input).toHaveCSS('outline-width', '3px');
 		await expect(page.locator('form-dropzone').first()).not.toHaveAttribute(
 			'tabindex',
 		);
@@ -356,7 +364,8 @@ test('forced colors keep native focus and dashed-to-solid drag state without opt
 		await expect(host).toHaveCSS('forced-color-adjust', 'auto');
 		await expect(host).toHaveCSS('border-top-style', 'dashed');
 		await host.locator('input').focus();
-		await expect(host.locator('input')).toHaveCSS('outline-style', 'auto');
+		await expect(host.locator('input')).toHaveCSS('outline-style', 'solid');
+		await expect(host.locator('input')).toHaveCSS('outline-width', '3px');
 		await drag(host, 'dragenter');
 		await expect(host).toHaveCSS('border-top-style', 'solid');
 		expect((await measurements(host)).text).toBeGreaterThanOrEqual(4.5);
