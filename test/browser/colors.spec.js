@@ -533,6 +533,10 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 				colorScheme: 'dark',
 				viewport: { width: 320, height: 900 },
 			});
+			await context.route(
+				'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
+				(route) => route.abort(),
+			);
 			const page = await context.newPage();
 			try {
 				if (failure === 'module failure')
@@ -561,6 +565,10 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 					);
 				}
 				await page.goto(`/demo/${demo}`);
+				if (failure !== 'no JavaScript')
+					await expect(
+						page.locator('#microlighter-status'),
+					).toContainText('MicroLighter could not load.');
 				await expect(
 					page.locator('.form-dropzone__prompt'),
 				).toHaveCount(0);
