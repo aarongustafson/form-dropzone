@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>&lt;form-dropzone&gt; Web Component Demo</title>
 		<link rel="stylesheet" href="./styles.css" />
+		<link rel="stylesheet" href="./demo-shell.css" />
 		<style>
 			.selection-log {
 				background: Field;
@@ -70,19 +71,39 @@
 			}
 		</style>
 	</head>
-	<body>
+	<body data-syntax-theme="github">
+		<a class="skip-link" href="#main">Skip to examples</a>
 		<header>
+			<p class="eyebrow">Web component / Examples</p>
 			<h1>&lt;form-dropzone&gt;</h1>
-			<p>
+			<p class="lede">
 				A progressively enhanced file-field wrapper that adds
 				drag-and-drop, accessible announcements, localization, and
 				optional image previews. See the
 				<a href="../">README</a>
 				for installation and API documentation.
 			</p>
+			<nav aria-label="Component resources">
+				<a
+					href="https://github.com/aarongustafson/form-dropzone/blob/main/README.md"
+					>Read the README</a
+				>
+				<a href="https://github.com/aarongustafson/form-dropzone"
+					>View on GitHub</a
+				>
+				<a href="./esm.html">esm.sh example</a>
+				<a href="./unpkg.html">unpkg example</a>
+			</nav>
 		</header>
 
-		<main>
+		<main id="main" tabindex="-1">
+			<p
+				id="microlighter-status"
+				class="enhancement-status"
+				role="status"
+				hidden
+			></p>
+
 			<p>
 				<strong>Try it:</strong> Use the native file picker or drop
 				files onto an enhanced zone. During a file drag, the dashed
@@ -106,13 +127,23 @@
 						files are rejected with an accessible announcement.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;form-dropzone&gt;</mark>
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Any file type code 1"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone&gt;</mark>
   &lt;label for="basic-file"&gt;Choose a file&lt;/label&gt;
   &lt;input
     id="basic-file"
     name="basic-file"
     type="file" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone>
@@ -152,7 +183,16 @@
 						files and announces each rejection.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;form-dropzone&gt;</mark>
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Mixed accept syntax code 2"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone&gt;</mark>
   &lt;label for="mixed-files"&gt;Choose documents or images&lt;/label&gt;
   &lt;input
     id="mixed-files"
@@ -161,6 +201,7 @@
     <mark>accept=".pdf,text/plain,image/*"
     multiple</mark> /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone>
@@ -202,7 +243,16 @@
 						input, but only image MIME types are previewed.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;form-dropzone preview-images&gt;</mark>
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Multiple image preview grid code 3"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone preview-images&gt;</mark>
   &lt;label for="preview-images"&gt;Choose images&lt;/label&gt;
   &lt;input
     id="preview-images"
@@ -211,6 +261,7 @@
     accept="image/*"
     multiple /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone preview-images>
@@ -273,7 +324,16 @@
 						</li>
 					</ul>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;form-dropzone
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Custom English announcements code 4"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone
   received-message="Ready to upload {count}: {files}."
   rejected-type-message="Not accepted: {files}. Choose a PDF."
   rejected-multiple-message="Only the first PDF was added. Extra: {files}."&gt;</mark>
@@ -284,6 +344,7 @@
     type="file"
     accept=".pdf" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone
@@ -327,7 +388,16 @@
 						single-file rejection messages.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;form-dropzone
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="French text and messages code 5"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone
   drop-label="Déposez les fichiers ici"
   separator-label="ou"
   received-message="{count} fichier(s) reçu(s) : {files}."
@@ -340,6 +410,7 @@
     type="file"
     accept=".pdf" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo" lang="fr">
 							<form action="#">
 								<form-dropzone
@@ -386,7 +457,16 @@
 						unavailable.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;form-dropzone&gt;</mark>
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Input nested in its label code 6"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone&gt;</mark>
   <mark>&lt;label&gt;</mark>
     Choose a spreadsheet
     &lt;input
@@ -395,6 +475,7 @@
       accept=".csv,.xlsx" /&gt;
   <mark>&lt;/label&gt;</mark>
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone>
@@ -428,7 +509,16 @@
 						generated Light DOM preview classes.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;style&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Left-aligned circular previews code 7"
+								tabindex="0"
+							><code>&lt;style&gt;
   .custom-dropzone {
     display: block;
     align-items: start;
@@ -492,6 +582,7 @@
     accept="image/*"
     multiple /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<form-dropzone
@@ -601,5 +692,6 @@
 				});
 		</script>
 		<script src="../define.js" type="module"></script>
+		<script type="module" src="./code-examples.js"></script>
 	</body>
 </html>
