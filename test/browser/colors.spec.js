@@ -71,7 +71,10 @@ function substitute(css, palette) {
 
 async function measurements(locator, pseudo = null) {
 	return locator.evaluate((element, pseudo) => {
-		const context = document.createElement('canvas').getContext('2d');
+		const canvas = document.createElement('canvas');
+		canvas.width = 1;
+		canvas.height = 1;
+		const context = canvas.getContext('2d', { willReadFrequently: true });
 		if (!context) throw new Error('Canvas measurement unavailable.');
 		const pixel = () => [...context.getImageData(0, 0, 1, 1).data];
 		const paint = (color) => {
