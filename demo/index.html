@@ -4,74 +4,14 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>&lt;form-dropzone&gt; Web Component Demo</title>
-		<link rel="stylesheet" href="./styles.css" />
 		<link rel="stylesheet" href="./demo-shell.css" />
-		<style>
-			.selection-log {
-				background: Field;
-				border-inline-start: 4px solid FieldText;
-				border-radius: 4px;
-				color: FieldText;
-				margin-block-start: 1rem;
-				padding: 0.75rem;
-			}
-
-			.custom-dropzone {
-				display: block;
-				align-items: start;
-				background: Canvas;
-				color: CanvasText;
-				border: 3px dashed currentColor;
-				border-radius: 1rem;
-				min-block-size: 10rem;
-				text-align: start;
-			}
-
-			.custom-dropzone.form-dropzone--drag-active {
-				border-style: solid;
-			}
-
-			.custom-dropzone.form-dropzone--enhanced {
-				display: flex;
-			}
-
-			.custom-dropzone input[type='file'] {
-				background: transparent;
-				color: inherit;
-				border: 0;
-				padding: 0;
-			}
-
-			.custom-dropzone input[type='file']::file-selector-button {
-				background: #4f3ca7;
-				border: 1px solid currentColor;
-				border-radius: 0.5rem;
-				color: white;
-				cursor: pointer;
-				font: inherit;
-				margin-inline-end: 0.75rem;
-				padding: 0.65rem 1rem;
-			}
-
-			.custom-dropzone input[type='file']::file-selector-button:hover {
-				background: #392b7a;
-			}
-
-			.custom-dropzone .form-dropzone__previews {
-				grid-template-columns: repeat(
-					auto-fit,
-					minmax(min(6rem, 100%), 1fr)
-				);
-			}
-
-			.custom-dropzone .form-dropzone__preview-image {
-				border-radius: 50%;
-				max-block-size: 200px;
-				max-inline-size: 200px;
-			}
-		</style>
+		<link rel="stylesheet" href="./styles.css" />
 	</head>
-	<body data-syntax-theme="github">
+	<body
+		data-demo-example="main"
+		data-demo-page="full"
+		data-syntax-theme="github"
+	>
 		<a class="skip-link" href="#main">Skip to examples</a>
 		<header>
 			<p class="eyebrow">Web component / Examples</p>
@@ -99,6 +39,9 @@
 		<main id="main" tabindex="-1">
 			<p
 				id="microlighter-status"
+				data-loading-message="Loading optional code highlighting and Copy controls."
+				data-failure-message="MicroLighter could not load. Code remains readable and selectable; the component loads independently."
+				data-theme-failure-message="Code highlighting and Copy controls are available, but the syntax theme could not load. The component loads independently."
 				class="enhancement-status"
 				role="status"
 				hidden
@@ -144,7 +87,7 @@
     type="file" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<form-dropzone>
 									<label for="basic-file"
@@ -202,7 +145,7 @@
     multiple</mark> /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<form-dropzone>
 									<label for="mixed-files"
@@ -262,7 +205,7 @@
     multiple /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<form-dropzone preview-images>
 									<label for="preview-images"
@@ -345,7 +288,7 @@
     accept=".pdf" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<form-dropzone
 									id="english-announcements-zone"
@@ -411,7 +354,11 @@
     accept=".pdf" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo" lang="fr">
+						<div
+							class="demo"
+							lang="fr"
+							data-demo-label="Exemple interactif"
+						>
 							<form action="#">
 								<form-dropzone
 									drop-label="Déposez les fichiers ici"
@@ -476,7 +423,7 @@
   <mark>&lt;/label&gt;</mark>
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<form-dropzone>
 									<label>
@@ -583,7 +530,7 @@
     multiple /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<form-dropzone
 									class="custom-dropzone"

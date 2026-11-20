@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
+import { expectNativeFocus, readDemoStyles } from './demo-fixture.js';
 
 test.beforeEach(async ({ page }) => {
 	await page.route(
@@ -12,17 +13,7 @@ const source = await readFile(
 	new URL('../../form-dropzone.js', import.meta.url),
 	'utf8',
 );
-const demoCSS = (
-	await Promise.all(
-		['styles.css', 'demo-shell.css'].map((file) =>
-			readFile(new URL(`../../demo/${file}`, import.meta.url), 'utf8'),
-		),
-	)
-).join('\n');
-const demoSource = await readFile(
-	new URL('../../demo/index.html', import.meta.url),
-	'utf8',
-);
+const demoCSS = await readDemoStyles();
 const definitionSource = await readFile(
 	new URL('../../define.js', import.meta.url),
 	'utf8',
@@ -198,10 +189,9 @@ test('all 19 palettes keep demo text, drag boundaries and file buttons readable'
 	await page.goto('/demo/index.html');
 	await expect(page.locator('.form-dropzone--enhanced')).toHaveCount(7);
 	const componentCSS = source.match(/style.textContent = `([\s\S]*?)`;/)[1];
-	const inlineCSS = demoSource.match(/<style>([\s\S]*?)<\/style>/)[1];
 	for (const [index, palette] of palettes.entries()) {
 		const style = await page.addStyleTag({
-			content: substitute(demoCSS + inlineCSS, palette),
+			content: substitute(demoCSS, palette),
 		});
 		await page.locator('#form-dropzone-styles').evaluate(
 			(style, css) => {
@@ -216,44 +206,49 @@ test('all 19 palettes keep demo text, drag boundaries and file buttons readable'
 			'.api-reference',
 			'pre code',
 		]) {
-			for (const element of await page.locator(selector).all())
-				expect(
-					(await measurements(element)).text,
-					`palette ${index}: ${selector}`,
-				).toBeGreaterThanOrEqual(4.5);
-		}
-		for (const host of await page.locator('form-dropzone').all()) {
-			for (const state of ['dragleave', 'dragenter']) {
-				await drag(host, state);
-				const measured = await measurements(host);
-				expect(
-					measured.text,
-					`palette ${index}: ${state} text`,
-				).toBeGreaterThanOrEqual(4.5);
-				expect(
-					measured.boundary,
-					`palette ${index}: ${state} border`,
-				).toBeGreaterThanOrEqual(3);
-				expect(
-					(await measurements(host.locator('input'))).text,
-					`palette ${index}: file name`,
-				).toBeGreaterThanOrEqual(4.5);
-				if (
-					await host.evaluate((element) =>
-						element.classList.contains('custom-dropzone'),
-					)
-				)
+			await Promise.all(
+				(await page.locator(selector).all()).map(async (element) => {
 					expect(
-						(
-							await measurements(
-								host.locator('input'),
-								'::file-selector-button',
-							)
-						).text,
-						`palette ${index}: branded picker`,
+						(await measurements(element)).text,
+						`palette ${index}: ${selector}`,
 					).toBeGreaterThanOrEqual(4.5);
-			}
+				}),
+			);
 		}
+		await Promise.all(
+			(await page.locator('form-dropzone').all()).map(async (host) => {
+				for (const state of ['dragleave', 'dragenter']) {
+					await drag(host, state);
+					const measured = await measurements(host);
+					expect(
+						measured.text,
+						`palette ${index}: ${state} text`,
+					).toBeGreaterThanOrEqual(4.5);
+					expect(
+						measured.boundary,
+						`palette ${index}: ${state} border`,
+					).toBeGreaterThanOrEqual(3);
+					expect(
+						(await measurements(host.locator('input'))).text,
+						`palette ${index}: file name`,
+					).toBeGreaterThanOrEqual(4.5);
+					if (
+						await host.evaluate((element) =>
+							element.classList.contains('custom-dropzone'),
+						)
+					)
+						expect(
+							(
+								await measurements(
+									host.locator('input'),
+									'::file-selector-button',
+								)
+							).text,
+							`palette ${index}: branded picker`,
+						).toBeGreaterThanOrEqual(4.5);
+				}
+			}),
+		);
 		await style.evaluate((element) => element.remove());
 	}
 });
@@ -347,8 +342,7 @@ for (const scheme of ['light', 'dark']) {
 		const input = page.locator('#basic-file');
 		await expect(input).toBeFocused();
 		await expect(input).toHaveAccessibleName('Choose a file');
-		await expect(input).toHaveCSS('outline-style', 'solid');
-		await expect(input).toHaveCSS('outline-width', '3px');
+		await expectNativeFocus(input);
 		await expect(page.locator('form-dropzone').first()).not.toHaveAttribute(
 			'tabindex',
 		);
@@ -369,9 +363,7 @@ test('forced colors keep native focus and dashed-to-solid drag state without opt
 		await expect(host).toHaveClass(/form-dropzone--enhanced/);
 		await expect(host).toHaveCSS('forced-color-adjust', 'auto');
 		await expect(host).toHaveCSS('border-top-style', 'dashed');
-		await host.locator('input').focus();
-		await expect(host.locator('input')).toHaveCSS('outline-style', 'solid');
-		await expect(host.locator('input')).toHaveCSS('outline-width', '3px');
+		await expectNativeFocus(host.locator('input'));
 		await drag(host, 'dragenter');
 		await expect(host).toHaveCSS('border-top-style', 'solid');
 		expect((await measurements(host)).text).toBeGreaterThanOrEqual(4.5);
@@ -506,14 +498,21 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 			const pairs = page.locator('.code-demo-pair');
 			expect(await pairs.count()).toBeGreaterThan(0);
 			for (const pair of await pairs.all()) {
-				const code = await pair.locator('pre').boundingBox();
-				const live = await pair.locator('.demo').boundingBox();
-				if (width === 1400)
-					expect(code.x + code.width).toBeLessThanOrEqual(live.x + 1);
-				else
-					expect(code.y + code.height).toBeLessThanOrEqual(
-						live.y + 1,
-					);
+				await expect
+					.poll(() =>
+						pair.evaluate((element) => {
+							const code = element
+								.querySelector(':scope > micro-lighter')
+								.getBoundingClientRect();
+							const live = element
+								.querySelector(':scope > .demo')
+								.getBoundingClientRect();
+							return innerWidth === 1400
+								? code.right <= live.left + 1
+								: code.bottom <= live.top + 1;
+						}),
+					)
+					.toBe(true);
 			}
 			expect(
 				await page.evaluate(

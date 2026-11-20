@@ -12,6 +12,13 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { it, expect } from 'vitest';
 
+it('trims block-edge margins inside demo sections', () => {
+	const styles = readFileSync('demo/demo-shell.css', 'utf8');
+	expect(styles).toMatch(
+		/\.demo-section(?:,\s*\.api-reference)?\s*\{[^}]*\bmargin-trim:\s*block;/,
+	);
+});
+
 it('preserves release scripts and updates both displayed and executed CDN pins', () => {
 	const source = join(dirname(fileURLToPath(import.meta.url)), '..');
 	const root = mkdtempSync(join(tmpdir(), 'form-dropzone-version-'));
