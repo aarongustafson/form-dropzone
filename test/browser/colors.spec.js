@@ -7,6 +7,10 @@ test.beforeEach(async ({ page }) => {
 		'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
 		(route) => route.abort(),
 	);
+	await page.route(
+		'https://cdn.jsdelivr.net/npm/@aarongustafson/tabbed-interface@3.0.4/**',
+		(route) => route.abort(),
+	);
 });
 
 const source = await readFile(
@@ -896,6 +900,10 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 			});
 			await context.route(
 				'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
+				(route) => route.abort(),
+			);
+			await context.route(
+				'https://cdn.jsdelivr.net/npm/@aarongustafson/tabbed-interface@3.0.4/**',
 				(route) => route.abort(),
 			);
 			const page = await context.newPage();
