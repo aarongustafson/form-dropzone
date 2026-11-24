@@ -53,7 +53,10 @@
 				boundary becomes solid without changing the zone’s colors. If
 				JavaScript or the required APIs are unavailable, the original
 				label and picker remain. Rejected files are named in the status
-				announcement; choose another file to recover.
+				announcement; choose another file to recover. This page also
+				uses
+				<a href="#shared-messages">shared message defaults</a>;
+				individual examples can override them.
 			</p>
 			<section id="basic-picker">
 				<h2>Basic picker and label alternatives</h2>
@@ -294,9 +297,10 @@
 					<p>
 						Drop multiple PDFs plus a non-PDF file to produce
 						received, file-type rejection, and single-file limit
-						messages in one announcement. The visible log mirrors
-						the component’s visually hidden live region for this
-						demo.
+						messages in one announcement. The visible result list
+						uses <code>form-dropzone:drop</code> to show accepted
+						files and both rejection categories without watching the
+						live region.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -347,19 +351,33 @@
 								</div>
 								<div
 									class="selection-log"
-									data-announcement-for="english-announcements-zone"
+									data-drop-for="english-announcements-zone"
 								>
-									<strong>Latest announcement:</strong> None
-									yet
+									<p>
+										Drop results (also includes rejected
+										files):
+									</p>
+									<dl>
+										<dt>Accepted</dt>
+										<dd data-outcome="accepted">None</dd>
+										<dt>Wrong type</dt>
+										<dd data-outcome="rejectedType">
+											None
+										</dd>
+										<dt>Too many files</dt>
+										<dd data-outcome="rejectedMultiple">
+											None
+										</dd>
+									</dl>
 								</div>
 							</form>
 						</div>
 					</div>
 				</div>
 
-				<div class="demo-section" id="french-drop-messages" lang="fr">
-					<h3 lang="en">French text and messages</h3>
-					<p lang="en">
+				<div class="demo-section" id="french-drop-messages">
+					<h3>French text and messages</h3>
+					<p>
 						Drop more than one PDF to hear both the received and
 						single-file rejection messages.
 					</p>
@@ -372,11 +390,13 @@
 						>
 							<pre
 								aria-label="Code des instructions et messages en français"
+								lang="fr"
+								data-language="html"
 								tabindex="0"
 							><code><mark>&lt;form-dropzone
   drop-label="Déposez les fichiers ici"
   separator-label="ou"
-  received-message="{count} fichier(s) reçu(s) : {files}."
+  received-message="Fichier reçu : {files}."
   rejected-type-message="Type refusé : {files}."
   rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."&gt;</mark>
   &lt;label for="french-pdf"&gt;Choisir un PDF&lt;/label&gt;
@@ -396,7 +416,7 @@
 								<form-dropzone
 									drop-label="Déposez les fichiers ici"
 									separator-label="ou"
-									received-message="{count} fichier(s) reçu(s) : {files}."
+									received-message="Fichier reçu : {files}."
 									rejected-type-message="Type refusé : {files}."
 									rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."
 								>
@@ -420,6 +440,127 @@
 						</div>
 					</div>
 				</div>
+			</section>
+
+			<section id="shared-messages">
+				<h2>Share complete messages across pickers</h2>
+				<p>
+					One authored JSON script supplies page-wide defaults.
+					Message objects can use plural categories;
+					<code>other</code> is required. The nearest
+					<code>lang</code> selects a category, and a missing category
+					falls back to <code>other</code>. An instance attribute
+					still wins for that message.
+				</p>
+				<div class="demo-section" id="shared-message-defaults">
+					<h3>Two instances, one configuration</h3>
+					<p>
+						Choose or drop one or several reports. The first zone
+						uses the shared singular/plural announcement; the second
+						overrides just that message. Drop outcomes are
+						announced, while native picker selections keep native
+						feedback. Clearing the form also clears previews and
+						drop feedback.
+					</p>
+					<div class="code-demo-pair">
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Shared plural messages and an instance override"
+								tabindex="0"
+							><code><mark>&lt;script type="application/json" data-form-dropzone-config&gt;
+  {
+    "received-message": {
+      "one": "Received one file: {files}.",
+      "other": "Received {count} files: {files}."
+    }
+  }
+&lt;/script&gt;</mark>
+
+<mark>&lt;form-dropzone&gt;</mark>
+  &lt;label for="shared-reports"&gt;Choose reports&lt;/label&gt;
+  &lt;input id="shared-reports" name="reports" type="file"
+    accept=".pdf" multiple /&gt;
+<mark>&lt;/form-dropzone&gt;</mark>
+
+<mark>&lt;form-dropzone preview-images
+  received-message="Reference images: {files}."&gt;</mark>
+  &lt;label for="shared-references"&gt;Choose reference images&lt;/label&gt;
+  &lt;input id="shared-references" name="references" type="file"
+    accept="image/*" multiple /&gt;
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
+						<div class="demo" data-demo-label="Live example">
+							<script
+								type="application/json"
+								data-form-dropzone-config
+							>
+								{
+									"received-message": {
+										"one": "Received one file: {files}.",
+										"other": "Received {count} files: {files}."
+									}
+								}
+							</script>
+							<form action="#">
+								<form-dropzone>
+									<label for="shared-reports"
+										>Choose reports</label
+									>
+									<input
+										id="shared-reports"
+										name="reports"
+										type="file"
+										accept=".pdf"
+										multiple
+									/>
+								</form-dropzone>
+								<div
+									class="selection-log"
+									data-log-for="shared-reports"
+								>
+									<strong>Selected:</strong> No files
+								</div>
+								<form-dropzone
+									preview-images
+									received-message="Reference images: {files}."
+								>
+									<label for="shared-references"
+										>Choose reference images</label
+									>
+									<input
+										id="shared-references"
+										name="references"
+										type="file"
+										accept="image/*"
+										multiple
+									/>
+								</form-dropzone>
+								<div
+									class="selection-log"
+									data-log-for="shared-references"
+								>
+									<strong>Selected:</strong> No files
+								</div>
+								<button type="reset">
+									Clear both selections
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				<p>
+					After editing the script, call <code>refresh()</code> on
+					each affected instance to update text without replacing its
+					input or previews. Invalid configuration is logged and keeps
+					the last usable text. See the
+					<a href="../#shared-messages-and-plural-wording">README</a>
+					for precedence, validation, and recovery.
+				</p>
 			</section>
 
 			<section id="custom-styling">
@@ -577,44 +718,54 @@
 					return;
 				}
 				const emptyMessage = label.nextSibling.textContent.trim();
-				input.addEventListener('change', () => {
+				const update = () => {
 					const names = Array.from(input.files, (file) => file.name);
 					log.replaceChildren(
 						label,
 						` ${names.join(', ') || emptyMessage}`,
 					);
+				};
+				input.addEventListener('change', update);
+				input.form?.addEventListener('reset', (event) => {
+					setTimeout(() => {
+						if (!event.defaultPrevented) update();
+					}, 0);
 				});
 			});
 
-			document
-				.querySelectorAll('[data-announcement-for]')
-				.forEach((log) => {
-					const dropzone = document.getElementById(
-						log.dataset.announcementFor,
-					);
-					if (!dropzone) {
-						return;
-					}
+			document.querySelectorAll('[data-drop-for]').forEach((log) => {
+				const dropzone = document.getElementById(log.dataset.dropFor);
+				if (!dropzone) {
+					return;
+				}
 
-					const observer = new MutationObserver(() => {
-						const message = dropzone.querySelector(
-							'.form-dropzone__status',
-						)?.textContent;
-						if (!message) {
-							return;
+				const results = [...log.querySelectorAll('[data-outcome]')];
+				const emptyMessages = results.map(
+					(result) => result.textContent,
+				);
+				dropzone.addEventListener(
+					'form-dropzone:drop',
+					({ detail }) => {
+						for (const [index, result] of results.entries()) {
+							const files = detail[result.dataset.outcome];
+							result.textContent =
+								files.map((file) => file.name).join(', ') ||
+								emptyMessages[index];
 						}
-
-						log.replaceChildren();
-						const label = document.createElement('strong');
-						label.textContent = 'Latest announcement:';
-						log.append(label, ` ${message}`);
+					},
+				);
+				dropzone
+					.querySelector('input')
+					.form?.addEventListener('reset', (event) => {
+						setTimeout(() => {
+							if (!event.defaultPrevented) {
+								results.forEach((result, index) => {
+									result.textContent = emptyMessages[index];
+								});
+							}
+						}, 0);
 					});
-					observer.observe(dropzone, {
-						childList: true,
-						characterData: true,
-						subtree: true,
-					});
-				});
+			});
 		</script>
 		<script src="../define.js" type="module"></script>
 		<script type="module" src="./code-examples.js"></script>

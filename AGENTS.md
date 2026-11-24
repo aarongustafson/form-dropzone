@@ -14,6 +14,10 @@ Read [the demo editing guide](demo/README.md) before changing demos or their tes
 - Work on a feature branch. Write a focused failing regression test first, then
   implement and run the applicable lint, unit, and browser checks. Do not weaken
   shared tests or edit provenance to obtain a pass.
+- Defer native form-reset synchronization to a task, not a microtask: Chromium
+  and WebKit may not have applied the reset at a microtask checkpoint. Keep
+  canceled resets, newer feedback, current form ownership, and disconnect cleanup
+  covered when changing this behavior.
 - Do not change versions, publishing automation, tags, or releases without
   explicit direction.
 
