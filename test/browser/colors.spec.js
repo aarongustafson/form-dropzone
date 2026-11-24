@@ -153,6 +153,108 @@ async function drag(
 	);
 }
 
+for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
+	test(`${demo}: every example has its own fragment destination`, async ({
+		page,
+	}) => {
+		await page.goto(`/demo/${demo}`);
+		const ids = await page
+			.locator('[id]')
+			.evaluateAll((elements) => elements.map((element) => element.id));
+		expect(new Set(ids).size).toBe(ids.length);
+		const examples = page.locator('.demo-section');
+		expect(await examples.count()).toBeGreaterThan(0);
+		for (const example of await examples.all()) {
+			const id = await example.getAttribute('id');
+			expect(id).toMatch(/^[a-z][a-z0-9]+(?:-[a-z0-9]+)+$/);
+			await page.evaluate((id) => {
+				location.hash = id;
+			}, id);
+			await expect(example).toBeInViewport();
+			await expect(example.locator('h2, h3').first()).toBeVisible();
+			await expect(example.locator('.code-demo-pair')).toHaveCount(1);
+		}
+	});
+}
+
+test('French selection feedback stays translated after selection and clearing', async ({
+	page,
+}) => {
+	await page.goto('/demo/index.html');
+	const input = page.locator('#french-pdf');
+	const log = page.locator('[data-log-for="french-pdf"]');
+	const name = '<img src=x onerror=alert(1)>.pdf';
+	await input.setInputFiles({
+		name,
+		mimeType: 'application/pdf',
+		buffer: Buffer.from('sample'),
+	});
+	await expect(log).toHaveText(`Sélection : ${name}`);
+	await expect(log.locator('img')).toHaveCount(0);
+	await input.setInputFiles([]);
+	await expect(log).toHaveText('Sélection : Aucun fichier');
+});
+
+test('French code and live drop outcomes use the same configuration', async ({
+	page,
+}) => {
+	await page.goto('/demo/index.html');
+	const example = page.locator('#french-drop-messages');
+	const host = example.locator('form-dropzone');
+	await expect(host).toHaveClass(/form-dropzone--enhanced/);
+	const code = await example.locator('pre code').textContent();
+	for (const attribute of [
+		'drop-label',
+		'separator-label',
+		'received-message',
+		'rejected-type-message',
+		'rejected-multiple-message',
+	]) {
+		expect(code).toContain(
+			`${attribute}="${await host.getAttribute(attribute)}"`,
+		);
+	}
+	await host.locator('input').focus();
+	await page.evaluate(() => {
+		window.selectionEvents = [];
+		for (const type of ['input', 'change']) {
+			document
+				.querySelector('#french-pdf')
+				.closest('form')
+				.addEventListener(type, (event) =>
+					window.selectionEvents.push(event.type),
+				);
+		}
+	});
+	await drag(host, 'drop', [
+		{ name: 'premier.pdf', type: 'application/pdf' },
+		{ name: 'second.pdf', type: 'application/pdf' },
+		{ name: 'notes.txt', type: 'text/plain' },
+	]);
+	await expect(host.getByRole('status')).toHaveText(
+		'1 fichier(s) reçu(s) : premier.pdf. Type refusé : notes.txt. Un seul fichier est autorisé. Refusé : second.pdf.',
+	);
+	await expect(example.locator('.selection-log')).toHaveText(
+		'Sélection : premier.pdf',
+	);
+	await expect(host.locator('input')).toBeFocused();
+	expect(await page.evaluate(() => window.selectionEvents)).toEqual([
+		'input',
+		'change',
+	]);
+	await drag(host, 'drop', [{ name: 'audio.mp3', type: 'audio/mpeg' }]);
+	await expect(host.getByRole('status')).toHaveText(
+		'Type refusé : audio.mp3.',
+	);
+	await expect(example.locator('.selection-log')).toHaveText(
+		'Sélection : premier.pdf',
+	);
+	expect(await page.evaluate(() => window.selectionEvents)).toEqual([
+		'input',
+		'change',
+	]);
+});
+
 for (const [name, background, color] of [
 	['light host', '#777', '#000'],
 	['dark host', '#767676', '#fff'],
@@ -423,6 +525,36 @@ test('native image selection keeps preview names readable and revokes URLs on cl
 	expect(
 		await host.locator('input').evaluate((input) => input.files[0].name),
 	).toBe('profile.png');
+	await host.evaluate((element) => {
+		element.previewImages = true;
+	});
+	const enabledURL = await host.locator('img').getAttribute('src');
+	await host.locator('input').setInputFiles({
+		name: '<svg onload=alert(1)>.png',
+		mimeType: 'image/png',
+		buffer: Buffer.from(
+			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a0yYAAAAASUVORK5CYII=',
+			'base64',
+		),
+	});
+	const replacementURL = await host.locator('img').getAttribute('src');
+	expect(replacementURL).not.toBe(enabledURL);
+	await expect(host.locator('.form-dropzone__preview-name')).toHaveText(
+		'<svg onload=alert(1)>.png',
+	);
+	await expect(host.locator('svg')).toHaveCount(0);
+	expect(await page.evaluate(() => window.revokedPreviewUrls)).toEqual([
+		url,
+		enabledURL,
+	]);
+	await host.evaluate((element) => {
+		element.remove();
+	});
+	expect(await page.evaluate(() => window.revokedPreviewUrls)).toEqual([
+		url,
+		enabledURL,
+		replacementURL,
+	]);
 });
 
 test('drops retain native form data, localized status, rejection recovery and cleanup', async ({
