@@ -17,9 +17,8 @@
 			<p class="eyebrow">Web component / Examples</p>
 			<h1>&lt;form-dropzone&gt;</h1>
 			<p class="lede">
-				A progressively enhanced file-field wrapper that adds
-				drag-and-drop, accessible announcements, localization, and
-				optional image previews. See the
+				Add file drag-and-drop, drop-result announcements, and optional
+				image previews to a labeled native picker. See the
 				<a href="../">README</a>
 				for installation and API documentation.
 			</p>
@@ -48,22 +47,23 @@
 			></p>
 
 			<p>
-				<strong>Try it:</strong> Use the native file picker or drop
-				files onto an enhanced zone. During a file drag, the dashed
+				Use the native file picker with the keyboard or drop files onto
+				an enhanced zone. The picker keeps its browser focus indicator;
+				the wrapper adds no tab stop. During a file drag, the dashed
 				boundary becomes solid without changing the zone’s colors. If
 				JavaScript or the required APIs are unavailable, the original
 				label and picker remain. Rejected files are named in the status
 				announcement; choose another file to recover.
 			</p>
-			<section>
-				<h2>Basic single-file picker</h2>
+			<section id="basic-picker">
+				<h2>Basic picker and label alternatives</h2>
 				<p>
 					The only required content is one file input and its
 					associated label.
 				</p>
 
-				<div class="demo-section">
-					<h3>Any file type</h3>
+				<div class="demo-section" id="single-file-picker">
+					<h3>Associate the label with <code>for</code></h3>
 					<p>
 						Without <code>accept</code> or <code>multiple</code>,
 						the first dropped file is selected and any additional
@@ -109,21 +109,67 @@
 						</div>
 					</div>
 				</div>
+				<div class="demo-section" id="wrapping-label">
+					<h3>Wrap the input in its label</h3>
+					<p>
+						The label can also contain the file input. Both patterns
+						keep the native picker usable before registration or
+						when drag-and-drop is unavailable.
+					</p>
+					<div class="code-demo-pair">
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Input nested in its label code 6"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone&gt;</mark>
+  <mark>&lt;label&gt;</mark>
+    Choose a spreadsheet
+    &lt;input
+      name="spreadsheet"
+      type="file"
+      accept=".csv,.xlsx" /&gt;
+  <mark>&lt;/label&gt;</mark>
+<mark>&lt;/form-dropzone&gt;</mark></code></pre>
+						</micro-lighter>
+						<div class="demo" data-demo-label="Live example">
+							<form action="#">
+								<form-dropzone>
+									<label>
+										Choose a spreadsheet
+										<input
+											name="spreadsheet"
+											type="file"
+											accept=".csv,.xlsx"
+										/>
+									</label>
+								</form-dropzone>
+							</form>
+						</div>
+					</div>
+				</div>
 			</section>
 
-			<section>
+			<section id="accepted-file-types">
 				<h2>Multiple files and <code>accept</code></h2>
 				<p>
-					Dropped files are checked against extension, exact MIME, and
-					wildcard MIME accept tokens.
+					Set <code>accept</code> on the input to limit dropped file
+					types. Add <code>multiple</code> to allow more than one
+					file.
 				</p>
 
-				<div class="demo-section">
+				<div class="demo-section" id="mixed-file-drop">
 					<h3>Mixed accept syntax</h3>
 					<p>
 						This input accepts PDF filenames, plain text MIME types,
-						and any image MIME type. A mixed drop keeps the valid
-						files and announces each rejection.
+						and any image MIME type. Drop a PDF and an audio file:
+						the PDF replaces the previous selection, and the audio
+						file is rejected and named in the announcement. A drop
+						with no accepted files leaves the selection unchanged.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -171,19 +217,20 @@
 				</div>
 			</section>
 
-			<section>
+			<section id="image-previews">
 				<h2>Image previews</h2>
 				<p>
-					The boolean <code>preview-images</code> attribute renders
-					image selections from the picker or a drop in a responsive
-					Light DOM grid.
+					Add <code>preview-images</code> to show image selections
+					from the picker or a drop, with filenames below the images.
 				</p>
 
-				<div class="demo-section">
+				<div class="demo-section" id="image-preview-grid">
 					<h3>Multiple image preview grid</h3>
 					<p>
-						Non-image files can remain selected when allowed by the
-						input, but only image MIME types are previewed.
+						Select several images to see a grid of cropped previews.
+						Selecting again replaces the previews. Non-image files
+						can remain selected when allowed by the input, but only
+						image MIME types get previews.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -231,41 +278,26 @@
 				</div>
 			</section>
 
-			<section>
+			<section id="custom-messages">
 				<h2>Localization and custom announcements</h2>
 				<p>
-					Visible instructions and all drop-result messages can be
-					translated independently. Announcement templates support
-					<code>{count}</code> and <code>{files}</code>.
+					Rewrite the instructions and drop-result messages for your
+					application’s vocabulary or language. Use
+					<code>{count}</code> for the number of files in an outcome
+					and <code>{files}</code> for their names. See the
+					<a href="../#attributes">attribute reference</a>
+					for defaults and JavaScript properties.
 				</p>
 
-				<div class="demo-section">
+				<div class="demo-section" id="english-drop-messages">
 					<h3>Custom English announcements</h3>
 					<p>
 						Drop multiple PDFs plus a non-PDF file to produce
 						received, file-type rejection, and single-file limit
 						messages in one announcement. The visible log mirrors
-						the component's visually hidden live region for this
+						the component’s visually hidden live region for this
 						demo.
 					</p>
-					<p>The default announcement templates are:</p>
-					<ul>
-						<li>
-							<code>received-message="Received: {files}."</code>
-						</li>
-						<li>
-							<code
-								>rejected-type-message="Rejected because the
-								file type is not accepted: {files}."</code
-							>
-						</li>
-						<li>
-							<code
-								>rejected-multiple-message="Rejected because
-								only one file is allowed: {files}."</code
-							>
-						</li>
-					</ul>
 					<div class="code-demo-pair">
 						<micro-lighter
 							class="code-panel"
@@ -277,6 +309,7 @@
 								aria-label="Custom English announcements code 4"
 								tabindex="0"
 							><code><mark>&lt;form-dropzone
+  id="english-announcements-zone"
   received-message="Ready to upload {count}: {files}."
   rejected-type-message="Not accepted: {files}. Choose a PDF."
   rejected-multiple-message="Only the first PDF was added. Extra: {files}."&gt;</mark>
@@ -324,9 +357,9 @@
 					</div>
 				</div>
 
-				<div class="demo-section">
-					<h3>French text and messages</h3>
-					<p>
+				<div class="demo-section" id="french-drop-messages" lang="fr">
+					<h3 lang="en">French text and messages</h3>
+					<p lang="en">
 						Drop more than one PDF to hear both the received and
 						single-file rejection messages.
 					</p>
@@ -338,7 +371,7 @@
 							data-label="HTML"
 						>
 							<pre
-								aria-label="French text and messages code 5"
+								aria-label="Code des instructions et messages en français"
 								tabindex="0"
 							><code><mark>&lt;form-dropzone
   drop-label="Déposez les fichiers ici"
@@ -389,71 +422,21 @@
 				</div>
 			</section>
 
-			<section>
-				<h2>Wrapping label association</h2>
+			<section id="custom-styling">
+				<h2>Style the picker and previews</h2>
 				<p>
-					The native label may use <code>for</code>/<code>id</code>
-					or wrap the file input directly.
+					Use author CSS to change alignment, borders, the native
+					picker button, and previews. Keep the picker’s focus
+					indicator and a drag cue that doesn’t depend on color.
 				</p>
 
-				<div class="demo-section">
-					<h3>Input nested in its label</h3>
-					<p>
-						This pattern remains fully functional before custom
-						element registration and when drag-and-drop is
-						unavailable.
-					</p>
-					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Input nested in its label code 6"
-								tabindex="0"
-							><code><mark>&lt;form-dropzone&gt;</mark>
-  <mark>&lt;label&gt;</mark>
-    Choose a spreadsheet
-    &lt;input
-      name="spreadsheet"
-      type="file"
-      accept=".csv,.xlsx" /&gt;
-  <mark>&lt;/label&gt;</mark>
-<mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<form action="#">
-								<form-dropzone>
-									<label>
-										Choose a spreadsheet
-										<input
-											name="spreadsheet"
-											type="file"
-											accept=".csv,.xlsx"
-										/>
-									</label>
-								</form-dropzone>
-							</form>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section>
-				<h2>Custom Light DOM styling</h2>
-				<p>
-					Default rules use low-specificity selectors, so normal
-					author CSS can override alignment, borders, drag state, and
-					preview elements.
-				</p>
-
-				<div class="demo-section">
+				<div class="demo-section" id="styled-picker-previews">
 					<h3>Left-aligned circular previews</h3>
 					<p>
-						This example uses the enhancement state class and
-						generated Light DOM preview classes.
+						The picker button is purple, the content aligns to the
+						start, and image previews are circular. During a file
+						drag, the dashed border becomes solid. The picker stays
+						visible with or without enhancement.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -559,7 +542,7 @@
 				</div>
 			</section>
 
-			<section class="api-reference">
+			<section class="api-reference" id="api-reference">
 				<h2>API reference</h2>
 				<p>
 					For complete attribute, property, styling-hook,
@@ -587,24 +570,19 @@
 				});
 			});
 
-			document.querySelectorAll('input[type="file"]').forEach((input) => {
+			document.querySelectorAll('[data-log-for]').forEach((log) => {
+				const input = document.getElementById(log.dataset.logFor);
+				const label = log.querySelector('strong');
+				if (!input || !label) {
+					return;
+				}
+				const emptyMessage = label.nextSibling.textContent.trim();
 				input.addEventListener('change', () => {
-					if (!input.id) {
-						return;
-					}
-
-					const log = document.querySelector(
-						`[data-log-for="${input.id}"]`,
-					);
-					if (!log) {
-						return;
-					}
-
 					const names = Array.from(input.files, (file) => file.name);
-					log.replaceChildren();
-					const label = document.createElement('strong');
-					label.textContent = 'Selected:';
-					log.append(label, ` ${names.join(', ') || 'No files'}`);
+					log.replaceChildren(
+						label,
+						` ${names.join(', ') || emptyMessage}`,
+					);
 				});
 			});
 
