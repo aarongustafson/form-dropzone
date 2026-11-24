@@ -1,6 +1,27 @@
 import { test, expect } from '@playwright/test';
 import { serveDemo } from './demo-fixture.js';
 
+test('separates page-wide instructions from the first example heading', async ({
+	page,
+}) => {
+	await serveDemo(page, { tabs: true });
+	await page.goto('http://code-demo.test/demo/index.html');
+	await expect(
+		page.getByRole('complementary', { name: 'Using these examples' }),
+	).toBeVisible();
+	expect(
+		await page.evaluate(() => {
+			const note = document.querySelector('main > aside.note');
+			const heading = document.querySelector('#basic-picker > h2');
+			return (
+				heading.getBoundingClientRect().top -
+					note.getBoundingClientRect().bottom >=
+				parseFloat(getComputedStyle(document.documentElement).fontSize)
+			);
+		}),
+	).toBe(true);
+});
+
 test('switches demo presentation without replacing the native picker or losing its files, and still resets', async ({
 	page,
 }) => {
