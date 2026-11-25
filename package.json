@@ -53,6 +53,7 @@
 		"test": "vitest",
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run",
+		"test:types": "tsc --noEmit --strict --target es2022 --module nodenext --moduleResolution nodenext test/types.ts",
 		"test:coverage": "vitest run --coverage",
 		"test:browser": "playwright test",
 		"demo:check": "node scripts/check-demo-shared.js",
@@ -66,6 +67,7 @@
 		"postversion": "git push --follow-tags"
 	},
 	"devDependencies": {
+		"@aarongustafson/tabbed-interface": "3.1.0",
 		"@playwright/test": "^1.64.0",
 		"@open-wc/eslint-config": "^13.1.0",
 		"@testing-library/dom": "^10.4.2",
@@ -77,6 +79,7 @@
 		"happy-dom": "^21.0.4",
 		"marked": "18.1.0",
 		"prettier": "^3.9.9",
+		"typescript": "^7.0.2",
 		"vitest": "^5.0.5",
 		"microlighter": "2.2.0"
 	},

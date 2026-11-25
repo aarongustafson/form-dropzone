@@ -15,40 +15,82 @@
 							"kind": "field",
 							"name": "dropLabel",
 							"type": { "text": "string" },
+							"reflects": true,
 							"attribute": "drop-label"
 						},
 						{
 							"kind": "field",
 							"name": "separatorLabel",
 							"type": { "text": "string" },
+							"reflects": true,
 							"attribute": "separator-label"
 						},
 						{
 							"kind": "field",
 							"name": "receivedMessage",
 							"type": { "text": "string" },
+							"reflects": true,
 							"attribute": "received-message"
 						},
 						{
 							"kind": "field",
 							"name": "rejectedTypeMessage",
 							"type": { "text": "string" },
+							"reflects": true,
 							"attribute": "rejected-type-message"
 						},
 						{
 							"kind": "field",
 							"name": "rejectedMultipleMessage",
 							"type": { "text": "string" },
+							"reflects": true,
 							"attribute": "rejected-multiple-message"
 						},
 						{
 							"kind": "field",
 							"name": "previewImages",
 							"type": { "text": "boolean" },
+							"reflects": true,
 							"attribute": "preview-images"
+						},
+						{
+							"kind": "field",
+							"name": "enhanced",
+							"readonly": true,
+							"type": { "text": "boolean" },
+							"description": "Whether the labeled native file input currently has dropzone enhancement."
+						},
+						{
+							"kind": "method",
+							"name": "refresh",
+							"description": "Reload shared authored labels and update prompt/separator text in place without replacing controls, previews, selection, or focus. Returns false and logs errors for invalid configuration or an inactive instance, retaining usable text. Does not rescan markup.",
+							"return": { "type": { "text": "boolean" } }
+						},
+						{
+							"kind": "method",
+							"name": "isSupported",
+							"static": true,
+							"description": "Checks the required file drag-and-drop APIs and assignable native FileList.",
+							"return": { "type": { "text": "boolean" } }
 						}
 					],
-					"events": [],
+					"events": [
+						{
+							"name": "form-dropzone:drop",
+							"type": {
+								"text": "CustomEvent<FormDropzoneDropDetail>"
+							},
+							"description": "After processing a file drop and dispatching any native input/change events, before the queued status update. Includes all-rejected drops without changing the prior selection. Not emitted for picker changes, resets, text-only drops, assignment failures, or enhancement disconnected during native callbacks. Detail and file arrays are frozen; File/input objects are not frozen.",
+							"bubbles": true,
+							"composed": true,
+							"cancelable": false,
+							"eventDetail": {
+								"type": {
+									"text": "{ readonly input: HTMLInputElement; readonly accepted: readonly File[]; readonly rejectedType: readonly File[]; readonly rejectedMultiple: readonly File[] }"
+								}
+							}
+						}
+					],
 					"attributes": [
 						{
 							"name": "drop-label",

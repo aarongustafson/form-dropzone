@@ -75,9 +75,35 @@ Dropped files are checked against the input’s comma-separated `accept` tokens,
 - Without `multiple`, the first acceptable file is selected; later acceptable files are rejected.
 - A drop with accepted files replaces the existing `FileList`, rather than appending to it. A mixed drop selects the accepted files and announces the rejected files.
 - A wholly rejected drop leaves the previous selection unchanged. Choose or drop another file to recover.
-- After assigning accepted dropped files, the input dispatches bubbling `input` and `change` events. The component adds no custom events.
+- After assigning accepted dropped files, the input dispatches bubbling `input` and `change` events. A completed file drop also emits `form-dropzone:drop` on the wrapper, including when every file was rejected.
 
 Picker selections use native browser behavior; the component’s rejection messages apply to drops. `accept` is not upload validation: validate files on the server too.
+
+### Drop outcomes
+
+Use the custom event for visible rejection feedback or application integration,
+not as a replacement for the input’s native selection events:
+
+```javascript
+const zone = document.querySelector('form-dropzone');
+zone.addEventListener('form-dropzone:drop', ({ detail }) => {
+  const { input, accepted, rejectedType, rejectedMultiple } = detail;
+  console.log(input.files, accepted, rejectedType, rejectedMultiple);
+});
+```
+
+The detail contains the native `input` and three arrays of `File` objects:
+files accepted by this drop, files rejected by `accept`, and excess acceptable
+files rejected by the single-file limit. These are outcome snapshots, not the
+current selection: an all-rejected drop has an empty `accepted` array while
+`input.files` retains the previous selection. The detail and arrays are frozen;
+the input and File objects are not.
+
+The event bubbles, crosses shadow boundaries, and cannot be canceled. It fires
+after any native selection events and preview synchronization, before the queued
+live-region text update. Picker changes, resets, text-only drops, assignment
+failures, and disconnection during native callbacks do not emit it. Assignment
+failures are logged rather than reported as successful drops.
 
 ## Attributes
 
@@ -92,7 +118,7 @@ Each attribute has a corresponding JavaScript property:
 | `rejected-multiple-message` | `rejectedMultipleMessage` | `Rejected because only one file is allowed: {files}.`      | Single-file limit announcement.                |
 | `preview-images`            | `previewImages`           | absent / `false`                                           | Image previews for picker and drop selections. |
 
-String properties reflect their attributes; setting `null` or `undefined` removes the attribute. Missing or empty string attributes use the defaults. Setting `previewImages` toggles the boolean attribute: its presence enables previews, even when written as `preview-images="false"`.
+String properties reflect their attributes; setting `null` or `undefined` removes the attribute. Missing or empty string attributes use shared defaults when provided, then the defaults above. Setting `previewImages` toggles the boolean attribute: its presence enables previews, even when written as `preview-images="false"`.
 
 Prompt and separator changes update the visible text. Message changes apply to subsequent drops, and preview changes update the current selection.
 
@@ -101,6 +127,71 @@ Prompt and separator changes update the visible text. Message changes apply to s
 Rewrite the prompt, separator, and messages for your application’s vocabulary or language. Translate the native label yourself. Message templates support `{files}` (a comma-separated filename list) and `{count}` (the number of files in that outcome, not the whole drop).
 
 See the [custom announcements and French example](https://aarongustafson.github.io/form-dropzone/demo/#custom-messages) for complete markup.
+
+### Shared messages and plural wording
+
+For repeated instances, supply one inline JSON script anywhere in the document
+before the components connect:
+
+```html
+<script type="application/json" data-form-dropzone-config>
+  {
+    "drop-label": "Drop documents here",
+    "received-message": {
+      "one": "Received one file: {files}.",
+      "other": "Received {count} files: {files}."
+    }
+  }
+</script>
+```
+
+The script accepts any subset of the five string attributes listed above.
+An instance attribute/property wins per key, then shared configuration, then the
+component default. Shared values never write instance attributes. Existing
+string attributes and properties remain complete, plain-string overrides;
+they do not accept JSON. Message getters return the effective string, using
+`other` when the shared value has plural forms.
+
+Shared labels must be nonempty strings. Shared messages accept either a
+nonempty string or a plural object with a required `other` string and optional
+`zero`, `one`, `two`, `few`, and `many` strings. `Intl.PluralRules` selects the
+category using the nearest inherited `lang`, including across shadow hosts;
+a missing category uses that message’s `other` phrase. An explicit empty
+`lang` stops inheritance. Without a language value, browser locale resolution
+applies.
+An invalid language is logged and uses the authored `other` phrase. Language
+changes affect the next drop; the component ships no translation catalog or
+language-selection registry.
+
+Both tokens can repeat, move, or be omitted. `{count}` remains the decimal
+count for that outcome; `{files}` remains the comma-separated filename list.
+Substituted names, braces, replacement metacharacters, and markup stay literal
+text. Shared templates reject unknown or malformed tokens. Existing instance
+strings retain their permissive token behavior for compatibility.
+
+Configuration must be a flat object with known keys, not a locale catalog.
+Duplicate scripts, named markers, external `src`, malformed JSON, empty values,
+unknown keys/categories, and invalid templates are logged. Initial errors keep
+the native picker and enhancement usable with instance/default text. A failed
+refresh retains the last valid shared configuration.
+
+### State and refreshing shared text
+
+`enhanced` is a read-only boolean: `true` while the labeled input has dropzone
+enhancement, and `false` before setup, in unsupported/invalid markup, or after
+disconnect. Native `files`, `accept`, `multiple`, `disabled`, and form ownership
+remain on the file input.
+
+`refresh(): boolean` reloads the document’s shared configuration and updates the
+existing prompt and separator. Call it on each affected instance after editing
+or removing the JSON script. It does not replace controls, previews, selected
+files, or focus, and does not replay a previous announcement or emit an event.
+Configuration is cached by script/text; getters do not reparse it.
+
+Refresh returns `false` and logs the problem for invalid configuration or an
+instance that is not connected and enhanced. It does not rescan replacement
+markup or initialize an unsupported element. Correct the JSON and call it again
+to recover; adding a previously missing input/label requires reconnection.
 
 ## Image previews
 
@@ -113,7 +204,13 @@ Add `preview-images` to show selected files whose MIME type starts with `image/`
 </form-dropzone>
 ```
 
-Previews show a cropped image and its filename. They’re visual only and don’t change form submission. The component revokes object URLs whenever previews are replaced, disabled, or disconnected.
+Previews show a cropped image and its filename. They’re visual only and don’t change form submission. The component revokes object URLs whenever previews are replaced, disabled, reset, or disconnected.
+
+A non-canceled reset of the input’s current form clears stale previews, drag
+state, and drop feedback after the browser resets the native selection. This
+also works inside a shadow root and with an external `form` owner in the same
+tree. Picker changes clear previous drop feedback without manufacturing a drop
+event; a canceled reset leaves it intact.
 
 ## Styling
 
@@ -196,6 +293,7 @@ The drop-zone layout and interaction were inspired by Nikita Hlopov's article, [
 ```bash
 npm install
 npm run test:run
+npm run test:types
 npm run test:coverage
 npm run test:browser
 npm run lint

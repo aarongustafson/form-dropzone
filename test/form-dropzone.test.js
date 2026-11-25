@@ -435,6 +435,241 @@ describe('FormDropzoneElement', () => {
 		});
 	});
 
+	describe('shared authored messages and drop outcomes', () => {
+		const configure = (labels) => {
+			const script = document.createElement('script');
+			script.type = 'application/json';
+			script.dataset.formDropzoneConfig = '';
+			script.textContent = JSON.stringify(labels);
+			document.body.append(script);
+			return script;
+		};
+
+		it('shares partial defaults without writing instance attributes and refreshes text in place', () => {
+			const config = configure({
+				'drop-label': 'Drop documents',
+				'separator-label': 'alternatively',
+			});
+			const first = createDropzone();
+			const second = createDropzone({
+				attributes: 'drop-label="Drop photos"',
+			});
+			const input = first.querySelector('input');
+			const prompt = first.querySelector('.form-dropzone__prompt');
+			input.files = createTransfer([
+				new File(['file'], 'keep.txt'),
+			]).files;
+			input.focus();
+			expect(first.enhanced).toBe(true);
+			expect(first.dropLabel).toBe('Drop documents');
+			expect(first.hasAttribute('drop-label')).toBe(false);
+			expect(second.dropLabel).toBe('Drop photos');
+			expect(second.separatorLabel).toBe('alternatively');
+			config.textContent = JSON.stringify({
+				'drop-label': 'New wording',
+			});
+			expect(first.dropLabel).toBe('Drop documents');
+			expect(first.refresh()).toBe(true);
+			expect(first.querySelector('.form-dropzone__prompt')).toBe(prompt);
+			expect(prompt.textContent).toBe('New wording');
+			expect(document.activeElement).toBe(input);
+			expect(input.files[0].name).toBe('keep.txt');
+			expect(second.dropLabel).toBe('Drop photos');
+			first.dropLabel = 'An override';
+			first.dropLabel = null;
+			expect(first.dropLabel).toBe('New wording');
+		});
+
+		it('selects plural forms using inherited language and keeps string overrides authoritative', async () => {
+			configure({
+				'received-message': {
+					one: 'Un fichier : {files}.',
+					other: '{count} fichiers : {files}.',
+				},
+			});
+			const wrapper = document.createElement('div');
+			wrapper.lang = 'fr';
+			document.body.append(wrapper);
+			const element = createDropzone({ inputAttributes: 'multiple' });
+			wrapper.append(element);
+			const files = [
+				new File(['one'], 'un.txt'),
+				new File(['two'], 'deux.txt'),
+			];
+			const status = element.querySelector('.form-dropzone__status');
+			expect(element.receivedMessage).toBe('{count} fichiers : {files}.');
+			dispatchDrag(element, 'drop', createTransfer(files.slice(0, 1)));
+			await Promise.resolve();
+			expect(status.textContent).toBe('Un fichier : un.txt.');
+			dispatchDrag(element, 'drop', createTransfer(files));
+			await Promise.resolve();
+			expect(status.textContent).toBe('2 fichiers : un.txt, deux.txt.');
+			element.receivedMessage = 'Choix : {files}';
+			dispatchDrag(element, 'drop', createTransfer(files));
+			await Promise.resolve();
+			expect(status.textContent).toBe('Choix : un.txt, deux.txt');
+			element.receivedMessage = null;
+			element.lang = 'ar';
+			dispatchDrag(element, 'drop', createTransfer(files));
+			await Promise.resolve();
+			expect(status.textContent).toBe('2 fichiers : un.txt, deux.txt.');
+		});
+
+		it.each([
+			'not JSON',
+			'[]',
+			'{"unknown-message":"No"}',
+			'{"drop-label":""}',
+			'{"drop-label":{"other":"No"}}',
+			'{"received-message":"Unknown {total}"}',
+			'{"received-message":{"one":"Only one"}}',
+			'{"received-message":{"other":"OK","typo":"No"}}',
+		])(
+			'reports invalid shared configuration and preserves the last usable text: %s',
+			(text) => {
+				const config = configure({ 'drop-label': 'Keep this label' });
+				const element = createDropzone();
+				const error = vi
+					.spyOn(console, 'error')
+					.mockImplementation(() => {});
+				config.textContent = text;
+				expect(element.refresh()).toBe(false);
+				expect(element.dropLabel).toBe('Keep this label');
+				expect(element.enhanced).toBe(true);
+				expect(error).toHaveBeenCalledOnce();
+			},
+		);
+
+		it('logs an invalid plural language once and keeps the authored other phrase usable', async () => {
+			configure({ 'received-message': { other: 'Selected: {files}' } });
+			const element = createDropzone({
+				attributes: 'lang="not_a_locale!"',
+			});
+			const error = vi
+				.spyOn(console, 'error')
+				.mockImplementation(() => {});
+			for (let index = 0; index < 2; index += 1) {
+				dispatchDrag(
+					element,
+					'drop',
+					createTransfer([new File(['file'], 'keep.txt')]),
+				);
+				await Promise.resolve();
+				expect(
+					element.querySelector('.form-dropzone__status').textContent,
+				).toBe('Selected: keep.txt');
+			}
+			expect(error).toHaveBeenCalledOnce();
+		});
+
+		it('keeps enhancement usable after invalid initial config and rejects duplicate/external/named configuration', () => {
+			const config = configure({ 'received-message': '{unknown}' });
+			const error = vi
+				.spyOn(console, 'error')
+				.mockImplementation(() => {});
+			const element = createDropzone();
+			expect(element.enhanced).toBe(true);
+			expect(element.dropLabel).toBe('Drop file(s) here');
+			config.textContent = '{}';
+			config.dataset.formDropzoneConfig = 'named';
+			expect(element.refresh()).toBe(false);
+			config.dataset.formDropzoneConfig = '';
+			config.src = '/translations.json';
+			expect(element.refresh()).toBe(false);
+			config.removeAttribute('src');
+			const duplicate = configure({});
+			expect(element.refresh()).toBe(false);
+			duplicate.remove();
+			expect(element.refresh()).toBe(true);
+			expect(error).toHaveBeenCalledTimes(4);
+			element.remove();
+			const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			expect(element.enhanced).toBe(false);
+			expect(element.refresh()).toBe(false);
+			expect(warn).toHaveBeenCalledOnce();
+		});
+
+		it('formats filename tokens and replacement metacharacters literally in a single pass', async () => {
+			const element = createDropzone({
+				attributes: 'received-message="{files}; count={count}"',
+			});
+			dispatchDrag(
+				element,
+				'drop',
+				createTransfer([
+					new File(['data'], '<img>{count}-$&-{files}.txt'),
+				]),
+			);
+			await Promise.resolve();
+			expect(
+				element.querySelector('.form-dropzone__status').textContent,
+			).toBe('<img>{count}-$&-{files}.txt; count=1');
+			expect(
+				element.querySelector('.form-dropzone__status img'),
+			).toBeNull();
+		});
+
+		it('emits a typed drop outcome after native events with stable accepted/rejected file snapshots', () => {
+			const element = createDropzone({
+				inputAttributes: 'accept="image/*"',
+			});
+			const input = element.querySelector('input');
+			const files = [
+				new File(['image'], 'first.png', { type: 'image/png' }),
+				new File(['text'], 'notes.txt', { type: 'text/plain' }),
+				new File(['image'], 'extra.png', { type: 'image/png' }),
+			];
+			const order = [];
+			element.addEventListener('input', () => order.push('input'));
+			element.addEventListener('change', () => order.push('change'));
+			let outcome;
+			element.addEventListener('form-dropzone:drop', (event) => {
+				order.push('drop');
+				outcome = event;
+				expect([...input.files]).toEqual([files[0]]);
+			});
+			dispatchDrag(element, 'drop', createTransfer(files));
+			expect(order).toEqual(['input', 'change', 'drop']);
+			expect(outcome).toMatchObject({
+				bubbles: true,
+				composed: true,
+				cancelable: false,
+				detail: {
+					input,
+					accepted: [files[0]],
+					rejectedType: [files[1]],
+					rejectedMultiple: [files[2]],
+				},
+			});
+			expect(Object.isFrozen(outcome.detail.accepted)).toBe(true);
+		});
+
+		it('reports all-rejected drops without emitting native selection events or changing selection', () => {
+			const element = createDropzone({
+				inputAttributes: 'accept=".png"',
+			});
+			const input = element.querySelector('input');
+			const previous = new File(['image'], 'keep.png', {
+				type: 'image/png',
+			});
+			input.files = createTransfer([previous]).files;
+			const selection = vi.fn();
+			const outcome = vi.fn();
+			element.addEventListener('change', selection);
+			element.addEventListener('form-dropzone:drop', outcome);
+			const rejected = new File(['text'], 'no.txt');
+			dispatchDrag(element, 'drop', createTransfer([rejected]));
+			expect(selection).not.toHaveBeenCalled();
+			expect(outcome).toHaveBeenCalledOnce();
+			expect(outcome.mock.calls[0][0].detail).toMatchObject({
+				accepted: [],
+				rejectedType: [rejected],
+				rejectedMultiple: [],
+			});
+			expect([...input.files]).toEqual([previous]);
+		});
+	});
+
 	describe('image previews', () => {
 		let createObjectURL;
 		let revokeObjectURL;
@@ -548,6 +783,52 @@ describe('FormDropzoneElement', () => {
 			expect(
 				element.querySelector('.form-dropzone__previews'),
 			).toBeNull();
+		});
+
+		it('refreshes labels without rebuilding selected previews or revoking their URLs', () => {
+			const element = createDropzone({ attributes: 'preview-images' });
+			const input = element.querySelector('input');
+			input.files = createTransfer([
+				new File(['image'], 'keep.png', { type: 'image/png' }),
+			]).files;
+			input.dispatchEvent(new Event('change', { bubbles: true }));
+			const preview = element.querySelector('.form-dropzone__preview');
+			input.focus();
+			expect(element.refresh()).toBe(true);
+			expect(element.querySelector('.form-dropzone__preview')).toBe(
+				preview,
+			);
+			expect(document.activeElement).toBe(input);
+			expect(createObjectURL).toHaveBeenCalledOnce();
+			expect(revokeObjectURL).not.toHaveBeenCalled();
+		});
+
+		it('reconnects selected files without replaying outcomes or announcements', async () => {
+			const element = createDropzone({ attributes: 'preview-images' });
+			const input = element.querySelector('input');
+			dispatchDrag(
+				element,
+				'drop',
+				createTransfer([
+					new File(['image'], 'keep.png', { type: 'image/png' }),
+				]),
+			);
+			const listener = vi.fn();
+			element.addEventListener('form-dropzone:drop', listener);
+			element.remove();
+			document.body.append(element);
+			await Promise.resolve();
+			expect(element.querySelector('input')).toBe(input);
+			expect(input.files[0].name).toBe('keep.png');
+			expect(
+				element.querySelector('.form-dropzone__preview-name')
+					.textContent,
+			).toBe('keep.png');
+			expect(
+				element.querySelector('.form-dropzone__status').textContent,
+			).toBe('');
+			expect(listener).not.toHaveBeenCalled();
+			expect(revokeObjectURL).toHaveBeenCalledWith('blob:keep.png');
 		});
 
 		it('revokes preview URLs when disconnected', () => {

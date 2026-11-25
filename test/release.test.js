@@ -19,6 +19,48 @@ it('trims block-edge margins inside demo sections', () => {
 	);
 });
 
+it('publishes the reflected configuration, read-only enhancement state, refresh, and drop outcome contract', () => {
+	const manifest = JSON.parse(readFileSync('custom-elements.json', 'utf8'));
+	const declaration = manifest.modules.find(
+		(module) => module.path === 'form-dropzone.js',
+	).declarations[0];
+	for (const attribute of [
+		'drop-label',
+		'separator-label',
+		'received-message',
+		'rejected-type-message',
+		'rejected-multiple-message',
+		'preview-images',
+	]) {
+		expect(
+			declaration.members.find((member) => member.attribute === attribute)
+				?.reflects,
+		).toBe(true);
+	}
+	expect(
+		declaration.members.find((member) => member.name === 'enhanced'),
+	).toMatchObject({
+		readonly: true,
+		type: { text: 'boolean' },
+	});
+	expect(
+		declaration.members.find((member) => member.name === 'refresh')?.return
+			.type.text,
+	).toBe('boolean');
+	expect(
+		declaration.members.find((member) => member.name === 'isSupported')
+			?.static,
+	).toBe(true);
+	expect(declaration.events).toMatchObject([
+		{
+			name: 'form-dropzone:drop',
+			bubbles: true,
+			composed: true,
+			cancelable: false,
+		},
+	]);
+});
+
 it('preserves release scripts and updates both displayed and executed CDN pins', () => {
 	const source = join(dirname(fileURLToPath(import.meta.url)), '..');
 	const root = mkdtempSync(join(tmpdir(), 'form-dropzone-version-'));

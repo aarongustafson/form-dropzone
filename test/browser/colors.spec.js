@@ -7,6 +7,10 @@ test.beforeEach(async ({ page }) => {
 		'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
 		(route) => route.abort(),
 	);
+	await page.route(
+		'https://cdn.jsdelivr.net/npm/@aarongustafson/tabbed-interface@3.1.0/**',
+		(route) => route.abort(),
+	);
 });
 
 const source = await readFile(
@@ -177,6 +181,323 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 	});
 }
 
+test('form reset synchronizes previews and cancels stale drop announcements without changing focus', async ({
+	page,
+}) => {
+	await page.goto('/test/browser/fixture.html');
+	await page.evaluate(() => {
+		document.body.innerHTML = `<form id="reset-form"><form-dropzone preview-images>
+			<label for="reset-file">Choose an image</label>
+			<input id="reset-file" name="image" type="file" accept="image/*">
+		</form-dropzone><button type="reset">Reset</button></form>`;
+	});
+	const zone = page.locator('form-dropzone');
+	await drag(zone, 'drop', [{ name: 'photo.png', type: 'image/png' }]);
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(1);
+	await expect(zone.getByRole('status')).toContainText('photo.png');
+	const reset = page.getByRole('button', { name: 'Reset', exact: true });
+	await reset.focus();
+	await page.keyboard.press('Space');
+	await expect
+		.poll(() =>
+			zone.locator('input').evaluate((input) => input.files.length),
+		)
+		.toBe(0);
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(0);
+	await expect(zone.getByRole('status')).toBeEmpty();
+	await expect(reset).toBeFocused();
+});
+
+test('form reset inside a shadow root clears previews, drag state, and feedback', async ({
+	page,
+}) => {
+	await page.goto('/test/browser/fixture.html');
+	await page.evaluate(() => {
+		const host = document.createElement('div');
+		host.id = 'shadow-form-host';
+		host.attachShadow({ mode: 'open' }).innerHTML = `
+			<form><form-dropzone preview-images>
+				<label for="shadow-file">Choose an image</label>
+				<input id="shadow-file" type="file" accept="image/*">
+			</form-dropzone><button type="reset">Reset shadow form</button></form>`;
+		document.body.append(host);
+	});
+	const host = page.locator('#shadow-form-host');
+	const zone = host.locator('form-dropzone');
+	await drag(zone, 'drop', [{ name: 'shadow.png', type: 'image/png' }]);
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(1);
+	await expect(zone.getByRole('status')).toContainText('shadow.png');
+	await drag(zone, 'dragenter');
+	await expect(zone).toHaveClass(/form-dropzone--drag-active/);
+	const reset = host.getByRole('button', { name: 'Reset shadow form' });
+	await reset.focus();
+	await page.keyboard.press('Space');
+	await expect
+		.poll(() =>
+			zone.locator('input').evaluate((input) => input.files.length),
+		)
+		.toBe(0);
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(0);
+	await expect(zone.getByRole('status')).toBeEmpty();
+	await expect(zone).not.toHaveClass(/form-dropzone--drag-active/);
+	await expect(reset).toBeFocused();
+});
+
+test('a pending reset does not erase newer drop feedback', async ({ page }) => {
+	await page.goto('/test/browser/fixture.html');
+	const zone = page.locator('form-dropzone');
+	await zone.evaluate((element) => {
+		element.querySelector('input').form.reset();
+		const transfer = new DataTransfer();
+		transfer.items.add(
+			new File(['pdf'], 'new.pdf', { type: 'application/pdf' }),
+		);
+		element.dispatchEvent(
+			new DragEvent('drop', {
+				bubbles: true,
+				cancelable: true,
+				dataTransfer: transfer,
+			}),
+		);
+	});
+	await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 0)));
+	await expect(zone.getByRole('status')).toHaveText('Ready: new.pdf.');
+});
+
+test('a successful reset followed by a canceled reset still clears previews and feedback', async ({
+	page,
+}) => {
+	await page.goto('/test/browser/fixture.html');
+	const zone = page.locator('form-dropzone');
+	await zone.evaluate((element) => {
+		element.previewImages = true;
+		element.querySelector('input').accept = 'image/*';
+	});
+	await drag(zone, 'drop', [{ name: 'old.png', type: 'image/png' }]);
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(1);
+	await zone.evaluate((element) => {
+		const form = element.querySelector('input').form;
+		form.reset();
+		form.addEventListener('reset', (event) => event.preventDefault(), {
+			once: true,
+		});
+		form.reset();
+	});
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(0);
+	await expect(zone.getByRole('status')).toBeEmpty();
+});
+
+for (const type of ['input', 'change']) {
+	test(`a reset inside the native ${type} callback clears feedback from that same drop`, async ({
+		page,
+	}) => {
+		await page.goto('/test/browser/fixture.html');
+		const zone = page.locator('form-dropzone');
+		await zone.locator('input').evaluate((input, name) => {
+			input.addEventListener(name, () => input.form.reset(), {
+				once: true,
+			});
+		}, type);
+		await drag(zone, 'drop', [
+			{ name: 'reset.pdf', type: 'application/pdf' },
+		]);
+		await expect
+			.poll(() =>
+				zone.locator('input').evaluate((input) => input.files.length),
+			)
+			.toBe(0);
+		await expect(zone.getByRole('status')).toBeEmpty();
+	});
+}
+
+test.describe('shadow-root language inheritance', () => {
+	test.use({ locale: 'en-US' });
+
+	test('plural messages cross shadow hosts but stop at an explicit empty lang', async ({
+		page,
+	}) => {
+		await page.goto('/test/browser/fixture.html');
+		await page.evaluate(() => {
+			const config = document.createElement('script');
+			config.type = 'application/json';
+			config.dataset.formDropzoneConfig = '';
+			config.textContent = JSON.stringify({
+				'received-message': {
+					two: 'ملفان: {files}.',
+					other: 'عدد الملفات: {count}.',
+				},
+			});
+			const host = document.createElement('div');
+			host.id = 'shadow-language-host';
+			host.lang = 'ar';
+			document.body.append(config, host);
+			const inner = document.createElement('div');
+			host.attachShadow({ mode: 'open' }).append(inner);
+			inner.attachShadow({ mode: 'open' }).innerHTML = `
+				<div id="language-scope"><form-dropzone>
+					<label for="language-file">Choose files</label>
+					<input id="language-file" type="file" accept=".pdf" multiple>
+				</form-dropzone></div>`;
+		});
+		const host = page.locator('#shadow-language-host');
+		const zone = host.locator('form-dropzone');
+		const files = [
+			{ name: 'first.pdf', type: 'application/pdf' },
+			{ name: 'second.pdf', type: 'application/pdf' },
+		];
+		await drag(zone, 'drop', files);
+		await expect(zone.getByRole('status')).toHaveText(
+			'ملفان: first.pdf, second.pdf.',
+		);
+		await host.locator('#language-scope').evaluate((scope) => {
+			scope.lang = '';
+		});
+		await drag(zone, 'drop', files);
+		await expect(zone.getByRole('status')).toHaveText('عدد الملفات: 2.');
+		await host.locator('#language-scope').evaluate((scope) => {
+			scope.removeAttribute('lang');
+		});
+		await drag(zone, 'drop', files);
+		await expect(zone.getByRole('status')).toHaveText(
+			'ملفان: first.pdf, second.pdf.',
+		);
+	});
+});
+
+test('shared French plural text refreshes without losing native selection, previews, or focus', async ({
+	page,
+}) => {
+	await page.goto('/test/browser/fixture.html');
+	const zone = page.locator('form-dropzone');
+	await zone.evaluate((element) => {
+		const config = document.createElement('script');
+		config.type = 'application/json';
+		config.dataset.formDropzoneConfig = '';
+		config.textContent = JSON.stringify({
+			'received-message': {
+				one: 'Un fichier : {files}.',
+				other: '{count} fichiers : {files}.',
+			},
+		});
+		document.body.lang = 'fr';
+		document.body.append(config);
+		element.removeAttribute('received-message');
+		element.querySelector('input').accept = 'image/*';
+		element.querySelector('input').multiple = true;
+		element.previewImages = true;
+		element.refresh();
+	});
+	const name = '<img>{count}-$&.png';
+	await drag(zone, 'drop', [{ name, type: 'image/png' }]);
+	await expect(zone.getByRole('status')).toHaveText(`Un fichier : ${name}.`);
+	await expect(zone.locator('.form-dropzone__status img')).toHaveCount(0);
+	const input = zone.locator('input');
+	const original = await input.elementHandle();
+	const previewURL = await zone
+		.locator('.form-dropzone__preview-image')
+		.getAttribute('src');
+	await input.focus();
+	expect(
+		await zone.evaluate((element) => {
+			document.querySelector('[data-form-dropzone-config]').textContent =
+				JSON.stringify({
+					'drop-label': 'Déposez des images',
+					'received-message': {
+						one: 'Ajout : {files}.',
+						other: '{count} ajouts : {files}.',
+					},
+				});
+			return element.refresh();
+		}),
+	).toBe(true);
+	await expect(input).toBeFocused();
+	expect(
+		await input.evaluate((node, saved) => node === saved, original),
+	).toBe(true);
+	expect(await input.evaluate((node) => node.files[0].name)).toBe(name);
+	await expect(zone.locator('.form-dropzone__preview-image')).toHaveAttribute(
+		'src',
+		previewURL,
+	);
+	await expect(zone.locator('.form-dropzone__prompt')).toHaveText(
+		'Déposez des images',
+	);
+	await drag(zone, 'drop', [
+		{ name: 'un.png', type: 'image/png' },
+		{ name: 'deux.png', type: 'image/png' },
+	]);
+	await expect(zone.getByRole('status')).toHaveText(
+		'2 ajouts : un.png, deux.png.',
+	);
+});
+
+test('visible outcome feedback includes all-rejected drops while keeping the selected file', async ({
+	page,
+}) => {
+	await page.goto('/demo/index.html');
+	const zone = page.locator('#english-announcements-zone');
+	const feedback = page.locator(
+		'[data-drop-for="english-announcements-zone"]',
+	);
+	await drag(zone, 'drop', [
+		{ name: 'first.pdf', type: 'application/pdf' },
+		{ name: 'no.txt', type: 'text/plain' },
+		{ name: 'extra.pdf', type: 'application/pdf' },
+	]);
+	await expect(feedback.locator('[data-outcome="accepted"]')).toHaveText(
+		'first.pdf',
+	);
+	await expect(feedback.locator('[data-outcome="rejectedType"]')).toHaveText(
+		'no.txt',
+	);
+	await expect(
+		feedback.locator('[data-outcome="rejectedMultiple"]'),
+	).toHaveText('extra.pdf');
+	await drag(zone, 'drop', [{ name: 'another.txt', type: 'text/plain' }]);
+	await expect(feedback.locator('[data-outcome="accepted"]')).toHaveText(
+		'None',
+	);
+	await expect(feedback.locator('[data-outcome="rejectedType"]')).toHaveText(
+		'another.txt',
+	);
+	expect(
+		await zone
+			.locator('input')
+			.evaluate((input) => [...input.files].map((file) => file.name)),
+	).toEqual(['first.pdf']);
+});
+
+test('shared demo defaults select singular/plural forms and allow one-instance overrides', async ({
+	page,
+}) => {
+	await page.goto('/demo/index.html');
+	const reports = page.locator('#shared-reports').locator('..');
+	const references = page.locator('#shared-references').locator('..');
+	await drag(reports, 'drop', [{ name: 'one.pdf', type: 'application/pdf' }]);
+	await expect(reports.getByRole('status')).toHaveText(
+		'Received one file: one.pdf.',
+	);
+	await drag(reports, 'drop', [
+		{ name: 'one.pdf', type: 'application/pdf' },
+		{ name: 'two.pdf', type: 'application/pdf' },
+	]);
+	await expect(reports.getByRole('status')).toHaveText(
+		'Received 2 files: one.pdf, two.pdf.',
+	);
+	await drag(references, 'drop', [
+		{ name: 'reference.png', type: 'image/png' },
+	]);
+	await expect(references.getByRole('status')).toHaveText(
+		'Reference images: reference.png.',
+	);
+	await page.getByRole('button', { name: 'Clear both selections' }).click();
+	await expect(references.locator('.form-dropzone__preview')).toHaveCount(0);
+	await expect(reports.getByRole('status')).toBeEmpty();
+	await expect(page.locator('[data-log-for="shared-reports"]')).toContainText(
+		'No files',
+	);
+});
+
 test('French selection feedback stays translated after selection and clearing', async ({
 	page,
 }) => {
@@ -193,6 +514,51 @@ test('French selection feedback stays translated after selection and clearing', 
 	await expect(log.locator('img')).toHaveCount(0);
 	await input.setInputFiles([]);
 	await expect(log).toHaveText('Sélection : Aucun fichier');
+});
+
+test('canceled resets keep selected previews and drop feedback', async ({
+	page,
+}) => {
+	await page.goto('/test/browser/fixture.html');
+	const zone = page.locator('form-dropzone');
+	await zone.evaluate((element) => {
+		element.previewImages = true;
+		element.querySelector('input').accept = 'image/*';
+	});
+	await drag(zone, 'drop', [{ name: 'keep.png', type: 'image/png' }]);
+	await zone.evaluate((element) => {
+		element
+			.querySelector('input')
+			.form.addEventListener('reset', (event) => event.preventDefault(), {
+				once: true,
+			});
+		element.querySelector('input').form.reset();
+	});
+	await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 0)));
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(1);
+	await expect(zone.getByRole('status')).toContainText('keep.png');
+});
+
+test('tracks the native input current external form owner when resetting', async ({
+	page,
+}) => {
+	await page.goto('/test/browser/fixture.html');
+	await page.evaluate(() => {
+		document.body.innerHTML = `<form id="first"></form><form id="second"></form>
+				<form-dropzone preview-images><label for="external">Choose an image</label>
+				<input id="external" type="file" accept="image/*" form="first"></form-dropzone>`;
+	});
+	const zone = page.locator('form-dropzone');
+	await drag(zone, 'drop', [{ name: 'external.png', type: 'image/png' }]);
+	await zone
+		.locator('input')
+		.evaluate((input) => input.setAttribute('form', 'second'));
+	await page.locator('#first').evaluate((form) => form.reset());
+	await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 0)));
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(1);
+	await page.locator('#second').evaluate((form) => form.reset());
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(0);
+	await expect(zone.getByRole('status')).toBeEmpty();
 });
 
 test('French code and live drop outcomes use the same configuration', async ({
@@ -232,7 +598,7 @@ test('French code and live drop outcomes use the same configuration', async ({
 		{ name: 'notes.txt', type: 'text/plain' },
 	]);
 	await expect(host.getByRole('status')).toHaveText(
-		'1 fichier(s) reçu(s) : premier.pdf. Type refusé : notes.txt. Un seul fichier est autorisé. Refusé : second.pdf.',
+		'Fichier reçu : premier.pdf. Type refusé : notes.txt. Un seul fichier est autorisé. Refusé : second.pdf.',
 	);
 	await expect(example.locator('.selection-log')).toHaveText(
 		'Sélection : premier.pdf',
@@ -289,7 +655,7 @@ test('all 19 palettes keep demo text, drag boundaries and file buttons readable'
 }) => {
 	await page.setViewportSize({ width: 1400, height: 900 });
 	await page.goto('/demo/index.html');
-	await expect(page.locator('.form-dropzone--enhanced')).toHaveCount(7);
+	await expect(page.locator('.form-dropzone--enhanced')).toHaveCount(9);
 	const componentCSS = source.match(/style.textContent = `([\s\S]*?)`;/)[1];
 	for (const [index, palette] of palettes.entries()) {
 		const style = await page.addStyleTag({
@@ -385,7 +751,7 @@ for (const scheme of ['light', 'dark']) {
 	}) => {
 		await page.emulateMedia({ colorScheme: scheme });
 		await page.goto('/demo/index.html');
-		await expect(page.locator('.form-dropzone--enhanced')).toHaveCount(7);
+		await expect(page.locator('.form-dropzone--enhanced')).toHaveCount(9);
 		const pair = await page.evaluate(() => {
 			const probe = document.createElement('span');
 			probe.style.cssText = 'background:ButtonFace;color:ButtonText';
@@ -433,7 +799,7 @@ for (const scheme of ['light', 'dark']) {
 	}) => {
 		await page.emulateMedia({ colorScheme: scheme });
 		await page.goto('/demo/index.html');
-		await expect(page.locator('.form-dropzone--enhanced')).toHaveCount(7);
+		await expect(page.locator('.form-dropzone--enhanced')).toHaveCount(9);
 		await page.locator('.code-demo-pair pre').first().focus();
 		// macOS WebKit needs Option+Tab when full keyboard navigation is off.
 		await page.keyboard.press(
@@ -634,10 +1000,14 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 					.poll(() =>
 						pair.evaluate((element) => {
 							const code = element
-								.querySelector(':scope > micro-lighter')
+								.querySelector(
+									':scope > tabbed-interface[data-demo-tabs] > micro-lighter',
+								)
 								.getBoundingClientRect();
 							const live = element
-								.querySelector(':scope > .demo')
+								.querySelector(
+									':scope > tabbed-interface[data-demo-tabs] > .demo',
+								)
 								.getBoundingClientRect();
 							return innerWidth === 1400
 								? code.right <= live.left + 1
@@ -669,6 +1039,10 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 			});
 			await context.route(
 				'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
+				(route) => route.abort(),
+			);
+			await context.route(
+				'https://cdn.jsdelivr.net/npm/@aarongustafson/tabbed-interface@3.1.0/**',
 				(route) => route.abort(),
 			);
 			const page = await context.newPage();
