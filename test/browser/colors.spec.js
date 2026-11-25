@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 		(route) => route.abort(),
 	);
 	await page.route(
-		'https://cdn.jsdelivr.net/npm/@aarongustafson/tabbed-interface@3.0.4/**',
+		'https://cdn.jsdelivr.net/npm/@aarongustafson/tabbed-interface@3.1.0/**',
 		(route) => route.abort(),
 	);
 });
@@ -1000,10 +1000,14 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 					.poll(() =>
 						pair.evaluate((element) => {
 							const code = element
-								.querySelector(':scope > micro-lighter')
+								.querySelector(
+									':scope > tabbed-interface[data-demo-tabs] > micro-lighter',
+								)
 								.getBoundingClientRect();
 							const live = element
-								.querySelector(':scope > .demo')
+								.querySelector(
+									':scope > tabbed-interface[data-demo-tabs] > .demo',
+								)
 								.getBoundingClientRect();
 							return innerWidth === 1400
 								? code.right <= live.left + 1
@@ -1038,7 +1042,7 @@ for (const demo of ['index.html', 'esm.html', 'unpkg.html']) {
 				(route) => route.abort(),
 			);
 			await context.route(
-				'https://cdn.jsdelivr.net/npm/@aarongustafson/tabbed-interface@3.0.4/**',
+				'https://cdn.jsdelivr.net/npm/@aarongustafson/tabbed-interface@3.1.0/**',
 				(route) => route.abort(),
 			);
 			const page = await context.newPage();

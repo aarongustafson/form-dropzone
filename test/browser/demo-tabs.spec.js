@@ -73,6 +73,9 @@ test('switches demo presentation without replacing the native picker or losing i
 	await pair.getByRole('tab', { name: 'Live example', exact: true }).click();
 	const input = pair.locator('#shared-references');
 	const original = await input.elementHandle();
+	const host = await pair
+		.locator(':scope > tabbed-interface')
+		.elementHandle();
 	await input.setInputFiles({
 		name: 'reference.svg',
 		mimeType: 'image/svg+xml',
@@ -84,7 +87,10 @@ test('switches demo presentation without replacing the native picker or losing i
 	await toggle.focus();
 	await page.keyboard.press('Space');
 	await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-	await expect(pair.locator(':scope > .demo')).toBeVisible();
+	await expect(
+		pair.locator(':scope > tabbed-interface[data-demo-tabs] > .demo'),
+	).toBeVisible();
+	expect(await host.evaluate((element) => element.isConnected)).toBe(true);
 	await page.keyboard.press('Space');
 	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 	await expect(
