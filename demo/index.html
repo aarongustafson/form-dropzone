@@ -776,9 +776,20 @@
 				const emptyMessages = results.map(
 					(result) => result.textContent,
 				);
+				// Resets inside native callbacks still belong to that same drop.
+				let dropGeneration = 0;
+				let outcomeGeneration = 0;
+				dropzone.addEventListener(
+					'drop',
+					() => {
+						dropGeneration += 1;
+					},
+					true,
+				);
 				dropzone.addEventListener(
 					'form-dropzone:drop',
 					({ detail }) => {
+						outcomeGeneration = dropGeneration;
 						for (const [index, result] of results.entries()) {
 							const files = detail[result.dataset.outcome];
 							result.textContent =
@@ -790,8 +801,12 @@
 				dropzone
 					.querySelector('input')
 					.form?.addEventListener('reset', (event) => {
+						const generation = dropGeneration;
 						setTimeout(() => {
-							if (!event.defaultPrevented) {
+							if (
+								!event.defaultPrevented &&
+								outcomeGeneration <= generation
+							) {
 								results.forEach((result, index) => {
 									result.textContent = emptyMessages[index];
 								});

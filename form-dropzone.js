@@ -230,6 +230,8 @@ export class FormDropzoneElement extends HTMLElement {
 		this._pluralRules = null;
 		this._resetDocument = null;
 		this._resetTimer = null;
+		this._pendingResets = [];
+		this._dropGeneration = 0;
 		this._handleClick = this._handleClick.bind(this);
 		this._handleDragEnter = this._handleDragEnter.bind(this);
 		this._handleDragLeave = this._handleDragLeave.bind(this);
@@ -467,6 +469,7 @@ export class FormDropzoneElement extends HTMLElement {
 		this._resetDocument = null;
 		clearTimeout(this._resetTimer);
 		this._resetTimer = null;
+		this._pendingResets = [];
 		this._removePreviews();
 		for (const element of this.querySelectorAll(
 			`[${GENERATED_ATTRIBUTE}]`,
@@ -493,21 +496,25 @@ export class FormDropzoneElement extends HTMLElement {
 
 	_handleReset(event) {
 		if (event.target !== this._input.form) return;
+		this._pendingResets.push({ event, generation: this._dropGeneration });
+		if (this._resetTimer !== null) return;
 		const input = this._input;
 		const status = this._status;
-		const announcementToken = this._announcementToken;
-		clearTimeout(this._resetTimer);
 		// Chromium and WebKit can run microtasks before the reset default action.
 		this._resetTimer = setTimeout(() => {
 			this._resetTimer = null;
+			const reset = this._pendingResets.findLast(
+				(pending) => !pending.event.defaultPrevented,
+			);
+			this._pendingResets = [];
 			if (
-				event.defaultPrevented ||
+				!reset ||
 				!this._enhanced ||
 				this._input !== input ||
 				this._status !== status
 			)
 				return;
-			if (this._announcementToken === announcementToken) {
+			if (this._dropGeneration === reset.generation) {
 				this._announcementToken += 1;
 				status.textContent = '';
 			}
@@ -582,6 +589,7 @@ export class FormDropzoneElement extends HTMLElement {
 		}
 
 		if (accepted.length === 0) {
+			this._dropGeneration += 1;
 			this._finishDrop(accepted, rejectedType, rejectedMultiple);
 			return;
 		}
@@ -603,6 +611,7 @@ export class FormDropzoneElement extends HTMLElement {
 
 		const input = this._input;
 		const status = this._status;
+		this._dropGeneration += 1;
 		input.dispatchEvent(new Event('input', { bubbles: true }));
 		input.dispatchEvent(new Event('change', { bubbles: true }));
 		if (this._input === input && this._status === status) {

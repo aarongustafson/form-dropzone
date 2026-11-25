@@ -1,6 +1,43 @@
 import { test, expect } from '@playwright/test';
 import { serveDemo } from './demo-fixture.js';
 
+for (const timing of ['before', 'during']) {
+	test(`reset ${timing} a drop preserves only genuinely newer outcome feedback`, async ({
+		page,
+	}) => {
+		await serveDemo(page);
+		await page.goto('http://code-demo.test/demo/index.html');
+		const zone = page.locator('#english-announcements-zone');
+		await zone.evaluate((element, when) => {
+			const input = element.querySelector('input');
+			if (when === 'before') input.form.reset();
+			else
+				input.addEventListener('input', () => input.form.reset(), {
+					once: true,
+				});
+			const transfer = new DataTransfer();
+			transfer.items.add(
+				new File(['pdf'], 'latest.pdf', { type: 'application/pdf' }),
+			);
+			element.dispatchEvent(
+				new DragEvent('drop', {
+					bubbles: true,
+					cancelable: true,
+					dataTransfer: transfer,
+				}),
+			);
+		}, timing);
+		await page.evaluate(
+			() => new Promise((resolve) => setTimeout(resolve, 0)),
+		);
+		await expect(
+			page.locator(
+				'[data-drop-for="english-announcements-zone"] [data-outcome="accepted"]',
+			),
+		).toHaveText(timing === 'before' ? 'latest.pdf' : 'None');
+	});
+}
+
 test('separates page-wide instructions from the first example heading', async ({
 	page,
 }) => {

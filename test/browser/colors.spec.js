@@ -229,6 +229,52 @@ test('a pending reset does not erase newer drop feedback', async ({ page }) => {
 	await expect(zone.getByRole('status')).toHaveText('Ready: new.pdf.');
 });
 
+test('a successful reset followed by a canceled reset still clears previews and feedback', async ({
+	page,
+}) => {
+	await page.goto('/test/browser/fixture.html');
+	const zone = page.locator('form-dropzone');
+	await zone.evaluate((element) => {
+		element.previewImages = true;
+		element.querySelector('input').accept = 'image/*';
+	});
+	await drag(zone, 'drop', [{ name: 'old.png', type: 'image/png' }]);
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(1);
+	await zone.evaluate((element) => {
+		const form = element.querySelector('input').form;
+		form.reset();
+		form.addEventListener('reset', (event) => event.preventDefault(), {
+			once: true,
+		});
+		form.reset();
+	});
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(0);
+	await expect(zone.getByRole('status')).toBeEmpty();
+});
+
+for (const type of ['input', 'change']) {
+	test(`a reset inside the native ${type} callback clears feedback from that same drop`, async ({
+		page,
+	}) => {
+		await page.goto('/test/browser/fixture.html');
+		const zone = page.locator('form-dropzone');
+		await zone.locator('input').evaluate((input, name) => {
+			input.addEventListener(name, () => input.form.reset(), {
+				once: true,
+			});
+		}, type);
+		await drag(zone, 'drop', [
+			{ name: 'reset.pdf', type: 'application/pdf' },
+		]);
+		await expect
+			.poll(() =>
+				zone.locator('input').evaluate((input) => input.files.length),
+			)
+			.toBe(0);
+		await expect(zone.getByRole('status')).toBeEmpty();
+	});
+}
+
 test('shared French plural text refreshes without losing native selection, previews, or focus', async ({
 	page,
 }) => {
