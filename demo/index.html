@@ -106,43 +106,47 @@
 						files are rejected with an accessible announcement.
 					</p>
 					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Any file type code 1"
-								tabindex="0"
-							><code><mark>&lt;form-dropzone&gt;</mark>
+						<tabbed-interface data-demo-tabs presentation="linear">
+							<h4 data-demo-tab="code" hidden>Code</h4>
+							<micro-lighter
+								class="code-panel"
+								language="html"
+								controls="copy"
+								data-label="HTML"
+							>
+								<pre
+									aria-label="Any file type code 1"
+									tabindex="0"
+								><code><mark>&lt;form-dropzone&gt;</mark>
   &lt;label for="basic-file"&gt;Choose a file&lt;/label&gt;
   &lt;input
     id="basic-file"
     name="basic-file"
     type="file" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<form action="#">
-								<form-dropzone>
-									<label for="basic-file"
-										>Choose a file</label
+							</micro-lighter>
+							<h4 data-demo-tab="live" hidden>Live example</h4>
+							<div class="demo" data-demo-label="Live example">
+								<form action="#">
+									<form-dropzone>
+										<label for="basic-file"
+											>Choose a file</label
+										>
+										<input
+											id="basic-file"
+											name="basic-file"
+											type="file"
+										/>
+									</form-dropzone>
+									<div
+										class="selection-log"
+										data-log-for="basic-file"
 									>
-									<input
-										id="basic-file"
-										name="basic-file"
-										type="file"
-									/>
-								</form-dropzone>
-								<div
-									class="selection-log"
-									data-log-for="basic-file"
-								>
-									<strong>Selected:</strong> No files
-								</div>
-							</form>
-						</div>
+										<strong>Selected:</strong> No files
+									</div>
+								</form>
+							</div>
+						</tabbed-interface>
 					</div>
 				</div>
 				<div class="demo-section" id="wrapping-label">
@@ -153,16 +157,18 @@
 						when drag-and-drop is unavailable.
 					</p>
 					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Input nested in its label code 6"
-								tabindex="0"
-							><code><mark>&lt;form-dropzone&gt;</mark>
+						<tabbed-interface data-demo-tabs presentation="linear">
+							<h4 data-demo-tab="code" hidden>Code</h4>
+							<micro-lighter
+								class="code-panel"
+								language="html"
+								controls="copy"
+								data-label="HTML"
+							>
+								<pre
+									aria-label="Input nested in its label code 6"
+									tabindex="0"
+								><code><mark>&lt;form-dropzone&gt;</mark>
   <mark>&lt;label&gt;</mark>
     Choose a spreadsheet
     &lt;input
@@ -171,21 +177,23 @@
       accept=".csv,.xlsx" /&gt;
   <mark>&lt;/label&gt;</mark>
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<form action="#">
-								<form-dropzone>
-									<label>
-										Choose a spreadsheet
-										<input
-											name="spreadsheet"
-											type="file"
-											accept=".csv,.xlsx"
-										/>
-									</label>
-								</form-dropzone>
-							</form>
-						</div>
+							</micro-lighter>
+							<h4 data-demo-tab="live" hidden>Live example</h4>
+							<div class="demo" data-demo-label="Live example">
+								<form action="#">
+									<form-dropzone>
+										<label>
+											Choose a spreadsheet
+											<input
+												name="spreadsheet"
+												type="file"
+												accept=".csv,.xlsx"
+											/>
+										</label>
+									</form-dropzone>
+								</form>
+							</div>
+						</tabbed-interface>
 					</div>
 				</div>
 			</section>
@@ -208,16 +216,18 @@
 						with no accepted files leaves the selection unchanged.
 					</p>
 					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Mixed accept syntax code 2"
-								tabindex="0"
-							><code><mark>&lt;form-dropzone&gt;</mark>
+						<tabbed-interface data-demo-tabs presentation="linear">
+							<h4 data-demo-tab="code" hidden>Code</h4>
+							<micro-lighter
+								class="code-panel"
+								language="html"
+								controls="copy"
+								data-label="HTML"
+							>
+								<pre
+									aria-label="Mixed accept syntax code 2"
+									tabindex="0"
+								><code><mark>&lt;form-dropzone&gt;</mark>
   &lt;label for="mixed-files"&gt;Choose documents or images&lt;/label&gt;
   &lt;input
     id="mixed-files"
@@ -226,29 +236,31 @@
     <mark>accept=".pdf,text/plain,image/*"
     multiple</mark> /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<form action="#">
-								<form-dropzone>
-									<label for="mixed-files"
-										>Choose documents or images</label
+							</micro-lighter>
+							<h4 data-demo-tab="live" hidden>Live example</h4>
+							<div class="demo" data-demo-label="Live example">
+								<form action="#">
+									<form-dropzone>
+										<label for="mixed-files"
+											>Choose documents or images</label
+										>
+										<input
+											id="mixed-files"
+											name="mixed-files"
+											type="file"
+											accept=".pdf,text/plain,image/*"
+											multiple
+										/>
+									</form-dropzone>
+									<div
+										class="selection-log"
+										data-log-for="mixed-files"
 									>
-									<input
-										id="mixed-files"
-										name="mixed-files"
-										type="file"
-										accept=".pdf,text/plain,image/*"
-										multiple
-									/>
-								</form-dropzone>
-								<div
-									class="selection-log"
-									data-log-for="mixed-files"
-								>
-									<strong>Selected:</strong> No files
-								</div>
-							</form>
-						</div>
+										<strong>Selected:</strong> No files
+									</div>
+								</form>
+							</div>
+						</tabbed-interface>
 					</div>
 				</div>
 			</section>
@@ -269,16 +281,18 @@
 						image MIME types get previews.
 					</p>
 					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Multiple image preview grid code 3"
-								tabindex="0"
-							><code><mark>&lt;form-dropzone preview-images&gt;</mark>
+						<tabbed-interface data-demo-tabs presentation="linear">
+							<h4 data-demo-tab="code" hidden>Code</h4>
+							<micro-lighter
+								class="code-panel"
+								language="html"
+								controls="copy"
+								data-label="HTML"
+							>
+								<pre
+									aria-label="Multiple image preview grid code 3"
+									tabindex="0"
+								><code><mark>&lt;form-dropzone preview-images&gt;</mark>
   &lt;label for="preview-images"&gt;Choose images&lt;/label&gt;
   &lt;input
     id="preview-images"
@@ -287,29 +301,31 @@
     accept="image/*"
     multiple /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<form action="#">
-								<form-dropzone preview-images>
-									<label for="preview-images"
-										>Choose images</label
+							</micro-lighter>
+							<h4 data-demo-tab="live" hidden>Live example</h4>
+							<div class="demo" data-demo-label="Live example">
+								<form action="#">
+									<form-dropzone preview-images>
+										<label for="preview-images"
+											>Choose images</label
+										>
+										<input
+											id="preview-images"
+											name="preview-images"
+											type="file"
+											accept="image/*"
+											multiple
+										/>
+									</form-dropzone>
+									<div
+										class="selection-log"
+										data-log-for="preview-images"
 									>
-									<input
-										id="preview-images"
-										name="preview-images"
-										type="file"
-										accept="image/*"
-										multiple
-									/>
-								</form-dropzone>
-								<div
-									class="selection-log"
-									data-log-for="preview-images"
-								>
-									<strong>Selected:</strong> No files
-								</div>
-							</form>
-						</div>
+										<strong>Selected:</strong> No files
+									</div>
+								</form>
+							</div>
+						</tabbed-interface>
 					</div>
 				</div>
 			</section>
@@ -336,16 +352,18 @@
 						live region.
 					</p>
 					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Custom English announcements code 4"
-								tabindex="0"
-							><code><mark>&lt;form-dropzone
+						<tabbed-interface data-demo-tabs presentation="linear">
+							<h4 data-demo-tab="code" hidden>Code</h4>
+							<micro-lighter
+								class="code-panel"
+								language="html"
+								controls="copy"
+								data-label="HTML"
+							>
+								<pre
+									aria-label="Custom English announcements code 4"
+									tabindex="0"
+								><code><mark>&lt;form-dropzone
   id="english-announcements-zone"
   received-message="Ready to upload {count}: {files}."
   rejected-type-message="Not accepted: {files}. Choose a PDF."
@@ -357,54 +375,58 @@
     type="file"
     accept=".pdf" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<form action="#">
-								<form-dropzone
-									id="english-announcements-zone"
-									received-message="Ready to upload {count}: {files}."
-									rejected-type-message="Not accepted: {files}. Choose a PDF."
-									rejected-multiple-message="Only the first PDF was added. Extra: {files}."
-								>
-									<label for="custom-announcements"
-										>Choose one PDF</label
+							</micro-lighter>
+							<h4 data-demo-tab="live" hidden>Live example</h4>
+							<div class="demo" data-demo-label="Live example">
+								<form action="#">
+									<form-dropzone
+										id="english-announcements-zone"
+										received-message="Ready to upload {count}: {files}."
+										rejected-type-message="Not accepted: {files}. Choose a PDF."
+										rejected-multiple-message="Only the first PDF was added. Extra: {files}."
 									>
-									<input
-										id="custom-announcements"
-										name="custom-announcements"
-										type="file"
-										accept=".pdf"
-									/>
-								</form-dropzone>
-								<div
-									class="selection-log"
-									data-log-for="custom-announcements"
-								>
-									<strong>Selected:</strong> No files
-								</div>
-								<div
-									class="selection-log"
-									data-drop-for="english-announcements-zone"
-								>
-									<p>
-										Drop results (also includes rejected
-										files):
-									</p>
-									<dl>
-										<dt>Accepted</dt>
-										<dd data-outcome="accepted">None</dd>
-										<dt>Wrong type</dt>
-										<dd data-outcome="rejectedType">
-											None
-										</dd>
-										<dt>Too many files</dt>
-										<dd data-outcome="rejectedMultiple">
-											None
-										</dd>
-									</dl>
-								</div>
-							</form>
-						</div>
+										<label for="custom-announcements"
+											>Choose one PDF</label
+										>
+										<input
+											id="custom-announcements"
+											name="custom-announcements"
+											type="file"
+											accept=".pdf"
+										/>
+									</form-dropzone>
+									<div
+										class="selection-log"
+										data-log-for="custom-announcements"
+									>
+										<strong>Selected:</strong> No files
+									</div>
+									<div
+										class="selection-log"
+										data-drop-for="english-announcements-zone"
+									>
+										<p>
+											Drop results (also includes rejected
+											files):
+										</p>
+										<dl>
+											<dt>Accepted</dt>
+											<dd data-outcome="accepted">
+												None
+											</dd>
+											<dt>Wrong type</dt>
+											<dd data-outcome="rejectedType">
+												None
+											</dd>
+											<dt>Too many files</dt>
+											<dd data-outcome="rejectedMultiple">
+												None
+											</dd>
+										</dl>
+									</div>
+								</form>
+							</div>
+						</tabbed-interface>
 					</div>
 				</div>
 
@@ -415,18 +437,20 @@
 						single-file rejection messages.
 					</p>
 					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Code des instructions et messages en français"
-								lang="fr"
-								data-language="html"
-								tabindex="0"
-							><code><mark>&lt;form-dropzone
+						<tabbed-interface data-demo-tabs presentation="linear">
+							<h4 data-demo-tab="code" hidden>Code</h4>
+							<micro-lighter
+								class="code-panel"
+								language="html"
+								controls="copy"
+								data-label="HTML"
+							>
+								<pre
+									aria-label="Code des instructions et messages en français"
+									lang="fr"
+									data-language="html"
+									tabindex="0"
+								><code><mark>&lt;form-dropzone
   drop-label="Déposez les fichiers ici"
   separator-label="ou"
   received-message="Fichier reçu : {files}."
@@ -439,38 +463,41 @@
     type="file"
     accept=".pdf" /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div
-							class="demo"
-							lang="fr"
-							data-demo-label="Exemple interactif"
-						>
-							<form action="#">
-								<form-dropzone
-									drop-label="Déposez les fichiers ici"
-									separator-label="ou"
-									received-message="Fichier reçu : {files}."
-									rejected-type-message="Type refusé : {files}."
-									rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."
-								>
-									<label for="french-pdf"
-										>Choisir un PDF</label
+							</micro-lighter>
+							<h4 data-demo-tab="live" hidden>Live example</h4>
+							<div
+								class="demo"
+								lang="fr"
+								data-demo-label="Exemple interactif"
+							>
+								<form action="#">
+									<form-dropzone
+										drop-label="Déposez les fichiers ici"
+										separator-label="ou"
+										received-message="Fichier reçu : {files}."
+										rejected-type-message="Type refusé : {files}."
+										rejected-multiple-message="Un seul fichier est autorisé. Refusé : {files}."
 									>
-									<input
-										id="french-pdf"
-										name="french-pdf"
-										type="file"
-										accept=".pdf"
-									/>
-								</form-dropzone>
-								<div
-									class="selection-log"
-									data-log-for="french-pdf"
-								>
-									<strong>Sélection :</strong> Aucun fichier
-								</div>
-							</form>
-						</div>
+										<label for="french-pdf"
+											>Choisir un PDF</label
+										>
+										<input
+											id="french-pdf"
+											name="french-pdf"
+											type="file"
+											accept=".pdf"
+										/>
+									</form-dropzone>
+									<div
+										class="selection-log"
+										data-log-for="french-pdf"
+									>
+										<strong>Sélection :</strong> Aucun
+										fichier
+									</div>
+								</form>
+							</div>
+						</tabbed-interface>
 					</div>
 				</div>
 			</section>
@@ -496,16 +523,18 @@
 						drop feedback.
 					</p>
 					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Shared plural messages and an instance override"
-								tabindex="0"
-							><code><mark>&lt;script type="application/json" data-form-dropzone-config&gt;
+						<tabbed-interface data-demo-tabs presentation="linear">
+							<h4 data-demo-tab="code" hidden>Code</h4>
+							<micro-lighter
+								class="code-panel"
+								language="html"
+								controls="copy"
+								data-label="HTML"
+							>
+								<pre
+									aria-label="Shared plural messages and an instance override"
+									tabindex="0"
+								><code><mark>&lt;script type="application/json" data-form-dropzone-config&gt;
   {
     "received-message": {
       "one": "Received one file: {files}.",
@@ -526,64 +555,66 @@
   &lt;input id="shared-references" name="references" type="file"
     accept="image/*" multiple /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<script
-								type="application/json"
-								data-form-dropzone-config
-							>
-								{
-									"received-message": {
-										"one": "Received one file: {files}.",
-										"other": "Received {count} files: {files}."
+							</micro-lighter>
+							<h4 data-demo-tab="live" hidden>Live example</h4>
+							<div class="demo" data-demo-label="Live example">
+								<script
+									type="application/json"
+									data-form-dropzone-config
+								>
+									{
+										"received-message": {
+											"one": "Received one file: {files}.",
+											"other": "Received {count} files: {files}."
+										}
 									}
-								}
-							</script>
-							<form action="#">
-								<form-dropzone>
-									<label for="shared-reports"
-										>Choose reports</label
+								</script>
+								<form action="#">
+									<form-dropzone>
+										<label for="shared-reports"
+											>Choose reports</label
+										>
+										<input
+											id="shared-reports"
+											name="reports"
+											type="file"
+											accept=".pdf"
+											multiple
+										/>
+									</form-dropzone>
+									<div
+										class="selection-log"
+										data-log-for="shared-reports"
 									>
-									<input
-										id="shared-reports"
-										name="reports"
-										type="file"
-										accept=".pdf"
-										multiple
-									/>
-								</form-dropzone>
-								<div
-									class="selection-log"
-									data-log-for="shared-reports"
-								>
-									<strong>Selected:</strong> No files
-								</div>
-								<form-dropzone
-									preview-images
-									received-message="Reference images: {files}."
-								>
-									<label for="shared-references"
-										>Choose reference images</label
+										<strong>Selected:</strong> No files
+									</div>
+									<form-dropzone
+										preview-images
+										received-message="Reference images: {files}."
 									>
-									<input
-										id="shared-references"
-										name="references"
-										type="file"
-										accept="image/*"
-										multiple
-									/>
-								</form-dropzone>
-								<div
-									class="selection-log"
-									data-log-for="shared-references"
-								>
-									<strong>Selected:</strong> No files
-								</div>
-								<button type="reset">
-									Clear both selections
-								</button>
-							</form>
-						</div>
+										<label for="shared-references"
+											>Choose reference images</label
+										>
+										<input
+											id="shared-references"
+											name="references"
+											type="file"
+											accept="image/*"
+											multiple
+										/>
+									</form-dropzone>
+									<div
+										class="selection-log"
+										data-log-for="shared-references"
+									>
+										<strong>Selected:</strong> No files
+									</div>
+									<button type="reset">
+										Clear both selections
+									</button>
+								</form>
+							</div>
+						</tabbed-interface>
 					</div>
 				</div>
 				<p>
@@ -613,16 +644,18 @@
 						visible with or without enhancement.
 					</p>
 					<div class="code-demo-pair">
-						<micro-lighter
-							class="code-panel"
-							language="html"
-							controls="copy"
-							data-label="HTML"
-						>
-							<pre
-								aria-label="Left-aligned circular previews code 7"
-								tabindex="0"
-							><code>&lt;style&gt;
+						<tabbed-interface data-demo-tabs presentation="linear">
+							<h4 data-demo-tab="code" hidden>Code</h4>
+							<micro-lighter
+								class="code-panel"
+								language="html"
+								controls="copy"
+								data-label="HTML"
+							>
+								<pre
+									aria-label="Left-aligned circular previews code 7"
+									tabindex="0"
+								><code>&lt;style&gt;
   .custom-dropzone {
     display: block;
     align-items: start;
@@ -686,32 +719,34 @@
     accept="image/*"
     multiple /&gt;
 <mark>&lt;/form-dropzone&gt;</mark></code></pre>
-						</micro-lighter>
-						<div class="demo" data-demo-label="Live example">
-							<form action="#">
-								<form-dropzone
-									class="custom-dropzone"
-									preview-images
-								>
-									<label for="styled-images"
-										>Choose profile images</label
+							</micro-lighter>
+							<h4 data-demo-tab="live" hidden>Live example</h4>
+							<div class="demo" data-demo-label="Live example">
+								<form action="#">
+									<form-dropzone
+										class="custom-dropzone"
+										preview-images
 									>
-									<input
-										id="styled-images"
-										name="styled-images"
-										type="file"
-										accept="image/*"
-										multiple
-									/>
-								</form-dropzone>
-								<div
-									class="selection-log"
-									data-log-for="styled-images"
-								>
-									<strong>Selected:</strong> No files
-								</div>
-							</form>
-						</div>
+										<label for="styled-images"
+											>Choose profile images</label
+										>
+										<input
+											id="styled-images"
+											name="styled-images"
+											type="file"
+											accept="image/*"
+											multiple
+										/>
+									</form-dropzone>
+									<div
+										class="selection-log"
+										data-log-for="styled-images"
+									>
+										<strong>Selected:</strong> No files
+									</div>
+								</form>
+							</div>
+						</tabbed-interface>
 					</div>
 				</div>
 			</section>

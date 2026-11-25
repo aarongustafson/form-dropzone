@@ -80,16 +80,18 @@
 					enhancement or previews.
 				</p>
 				<div class="code-demo-pair">
-					<micro-lighter
-						class="code-panel"
-						language="html"
-						controls="copy"
-						data-label="HTML"
-					>
-						<pre
-							aria-label="Image selection and previews code 1"
-							tabindex="0"
-						><code><mark>&lt;form-dropzone preview-images&gt;</mark>
+					<tabbed-interface data-demo-tabs presentation="linear">
+						<h3 data-demo-tab="code" hidden>Code</h3>
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Image selection and previews code 1"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone preview-images&gt;</mark>
   &lt;label for="esm-images"&gt;Choose images&lt;/label&gt;
   &lt;input
     id="esm-images"
@@ -106,19 +108,21 @@
     customElements.define('form-dropzone', FormDropzoneElement);
   }</mark>
 &lt;/script&gt;</code></pre>
-					</micro-lighter>
-					<div class="demo" data-demo-label="Live example">
-						<form-dropzone preview-images>
-							<label for="esm-images">Choose images</label>
-							<input
-								id="esm-images"
-								name="images"
-								type="file"
-								accept="image/*"
-								multiple
-							/>
-						</form-dropzone>
-					</div>
+						</micro-lighter>
+						<h3 data-demo-tab="live" hidden>Live example</h3>
+						<div class="demo" data-demo-label="Live example">
+							<form-dropzone preview-images>
+								<label for="esm-images">Choose images</label>
+								<input
+									id="esm-images"
+									name="images"
+									type="file"
+									accept="image/*"
+									multiple
+								/>
+							</form-dropzone>
+						</div>
+					</tabbed-interface>
 				</div>
 			</section>
 		</main>

@@ -80,16 +80,18 @@
 					CDN load is unavailable, the labeled native picker remains.
 				</p>
 				<div class="code-demo-pair">
-					<micro-lighter
-						class="code-panel"
-						language="html"
-						controls="copy"
-						data-label="HTML"
-					>
-						<pre
-							aria-label="One PDF attachment code 1"
-							tabindex="0"
-						><code><mark>&lt;form-dropzone&gt;</mark>
+					<tabbed-interface data-demo-tabs presentation="linear">
+						<h3 data-demo-tab="code" hidden>Code</h3>
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="One PDF attachment code 1"
+								tabindex="0"
+							><code><mark>&lt;form-dropzone&gt;</mark>
   &lt;label for="unpkg-document"&gt;Choose a PDF&lt;/label&gt;
   &lt;input
     id="unpkg-document"
@@ -103,18 +105,20 @@
 
   <mark>defineFormDropzone();</mark>
 &lt;/script&gt;</code></pre>
-					</micro-lighter>
-					<div class="demo" data-demo-label="Live example">
-						<form-dropzone>
-							<label for="unpkg-document">Choose a PDF</label>
-							<input
-								id="unpkg-document"
-								name="document"
-								type="file"
-								accept=".pdf"
-							/>
-						</form-dropzone>
-					</div>
+						</micro-lighter>
+						<h3 data-demo-tab="live" hidden>Live example</h3>
+						<div class="demo" data-demo-label="Live example">
+							<form-dropzone>
+								<label for="unpkg-document">Choose a PDF</label>
+								<input
+									id="unpkg-document"
+									name="document"
+									type="file"
+									accept=".pdf"
+								/>
+							</form-dropzone>
+						</div>
+					</tabbed-interface>
 				</div>
 			</section>
 		</main>
