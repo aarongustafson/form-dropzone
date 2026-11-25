@@ -155,8 +155,10 @@ they do not accept JSON. Message getters return the effective string, using
 Shared labels must be nonempty strings. Shared messages accept either a
 nonempty string or a plural object with a required `other` string and optional
 `zero`, `one`, `two`, `few`, and `many` strings. `Intl.PluralRules` selects the
-category using the nearest inherited `lang`; a missing category uses that
-message’s `other` phrase. Without `lang`, browser locale resolution applies.
+category using the nearest inherited `lang`, including across shadow hosts;
+a missing category uses that message’s `other` phrase. An explicit empty
+`lang` stops inheritance. Without a language value, browser locale resolution
+applies.
 An invalid language is logged and uses the authored `other` phrase. Language
 changes affect the next drop; the component ships no translation catalog or
 language-selection registry.
@@ -206,8 +208,9 @@ Previews show a cropped image and its filename. They’re visual only and don’
 
 A non-canceled reset of the input’s current form clears stale previews, drag
 state, and drop feedback after the browser resets the native selection. This
-also works with an external `form` owner. Picker changes clear previous drop
-feedback without manufacturing a drop event; a canceled reset leaves it intact.
+also works inside a shadow root and with an external `form` owner in the same
+tree. Picker changes clear previous drop feedback without manufacturing a drop
+event; a canceled reset leaves it intact.
 
 ## Styling
 

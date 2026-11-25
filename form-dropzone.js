@@ -228,7 +228,7 @@ export class FormDropzoneElement extends HTMLElement {
 		this._sharedLabels = {};
 		this._pluralLanguage = null;
 		this._pluralRules = null;
-		this._resetDocument = null;
+		this._resetRoot = null;
 		this._resetTimer = null;
 		this._pendingResets = [];
 		this._dropGeneration = 0;
@@ -395,8 +395,17 @@ export class FormDropzoneElement extends HTMLElement {
 		if (this.getAttribute(name) || !shared || typeof shared === 'string') {
 			return this._stringValue(name);
 		}
-		const language =
-			this.closest('[lang]')?.getAttribute('lang') || undefined;
+		let scope = this;
+		let language;
+		while (scope) {
+			const ancestor = scope.closest('[lang]');
+			if (ancestor) {
+				language = ancestor.getAttribute('lang') || undefined;
+				break;
+			}
+			const root = scope.getRootNode();
+			scope = root instanceof ShadowRoot ? root.host : null;
+		}
 		if (language !== this._pluralLanguage) {
 			this._pluralLanguage = language;
 			this._pluralRules = null;
@@ -448,8 +457,8 @@ export class FormDropzoneElement extends HTMLElement {
 		this.addEventListener('dragover', this._handleDragOver);
 		this.addEventListener('drop', this._handleDrop);
 		this._input.addEventListener('change', this._handleInputChange);
-		this._resetDocument = this.ownerDocument;
-		this._resetDocument.addEventListener('reset', this._handleReset, true);
+		this._resetRoot = this.getRootNode();
+		this._resetRoot.addEventListener('reset', this._handleReset, true);
 		this._enhanced = true;
 		this._syncPreviews();
 	}
@@ -461,12 +470,8 @@ export class FormDropzoneElement extends HTMLElement {
 		this.removeEventListener('dragover', this._handleDragOver);
 		this.removeEventListener('drop', this._handleDrop);
 		this._input?.removeEventListener('change', this._handleInputChange);
-		this._resetDocument?.removeEventListener(
-			'reset',
-			this._handleReset,
-			true,
-		);
-		this._resetDocument = null;
+		this._resetRoot?.removeEventListener('reset', this._handleReset, true);
+		this._resetRoot = null;
 		clearTimeout(this._resetTimer);
 		this._resetTimer = null;
 		this._pendingResets = [];

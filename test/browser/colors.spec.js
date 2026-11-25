@@ -208,6 +208,41 @@ test('form reset synchronizes previews and cancels stale drop announcements with
 	await expect(reset).toBeFocused();
 });
 
+test('form reset inside a shadow root clears previews, drag state, and feedback', async ({
+	page,
+}) => {
+	await page.goto('/test/browser/fixture.html');
+	await page.evaluate(() => {
+		const host = document.createElement('div');
+		host.id = 'shadow-form-host';
+		host.attachShadow({ mode: 'open' }).innerHTML = `
+			<form><form-dropzone preview-images>
+				<label for="shadow-file">Choose an image</label>
+				<input id="shadow-file" type="file" accept="image/*">
+			</form-dropzone><button type="reset">Reset shadow form</button></form>`;
+		document.body.append(host);
+	});
+	const host = page.locator('#shadow-form-host');
+	const zone = host.locator('form-dropzone');
+	await drag(zone, 'drop', [{ name: 'shadow.png', type: 'image/png' }]);
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(1);
+	await expect(zone.getByRole('status')).toContainText('shadow.png');
+	await drag(zone, 'dragenter');
+	await expect(zone).toHaveClass(/form-dropzone--drag-active/);
+	const reset = host.getByRole('button', { name: 'Reset shadow form' });
+	await reset.focus();
+	await page.keyboard.press('Space');
+	await expect
+		.poll(() =>
+			zone.locator('input').evaluate((input) => input.files.length),
+		)
+		.toBe(0);
+	await expect(zone.locator('.form-dropzone__preview')).toHaveCount(0);
+	await expect(zone.getByRole('status')).toBeEmpty();
+	await expect(zone).not.toHaveClass(/form-dropzone--drag-active/);
+	await expect(reset).toBeFocused();
+});
+
 test('a pending reset does not erase newer drop feedback', async ({ page }) => {
 	await page.goto('/test/browser/fixture.html');
 	const zone = page.locator('form-dropzone');
@@ -274,6 +309,60 @@ for (const type of ['input', 'change']) {
 		await expect(zone.getByRole('status')).toBeEmpty();
 	});
 }
+
+test.describe('shadow-root language inheritance', () => {
+	test.use({ locale: 'en-US' });
+
+	test('plural messages cross shadow hosts but stop at an explicit empty lang', async ({
+		page,
+	}) => {
+		await page.goto('/test/browser/fixture.html');
+		await page.evaluate(() => {
+			const config = document.createElement('script');
+			config.type = 'application/json';
+			config.dataset.formDropzoneConfig = '';
+			config.textContent = JSON.stringify({
+				'received-message': {
+					two: 'ملفان: {files}.',
+					other: 'عدد الملفات: {count}.',
+				},
+			});
+			const host = document.createElement('div');
+			host.id = 'shadow-language-host';
+			host.lang = 'ar';
+			document.body.append(config, host);
+			const inner = document.createElement('div');
+			host.attachShadow({ mode: 'open' }).append(inner);
+			inner.attachShadow({ mode: 'open' }).innerHTML = `
+				<div id="language-scope"><form-dropzone>
+					<label for="language-file">Choose files</label>
+					<input id="language-file" type="file" accept=".pdf" multiple>
+				</form-dropzone></div>`;
+		});
+		const host = page.locator('#shadow-language-host');
+		const zone = host.locator('form-dropzone');
+		const files = [
+			{ name: 'first.pdf', type: 'application/pdf' },
+			{ name: 'second.pdf', type: 'application/pdf' },
+		];
+		await drag(zone, 'drop', files);
+		await expect(zone.getByRole('status')).toHaveText(
+			'ملفان: first.pdf, second.pdf.',
+		);
+		await host.locator('#language-scope').evaluate((scope) => {
+			scope.lang = '';
+		});
+		await drag(zone, 'drop', files);
+		await expect(zone.getByRole('status')).toHaveText('عدد الملفات: 2.');
+		await host.locator('#language-scope').evaluate((scope) => {
+			scope.removeAttribute('lang');
+		});
+		await drag(zone, 'drop', files);
+		await expect(zone.getByRole('status')).toHaveText(
+			'ملفان: first.pdf, second.pdf.',
+		);
+	});
+});
 
 test('shared French plural text refreshes without losing native selection, previews, or focus', async ({
 	page,
